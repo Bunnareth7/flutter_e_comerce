@@ -2,6 +2,13 @@ import 'package:get_it/get_it.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
+// Profile
+import 'features/profile/data/datasources/profile_local_data_source.dart';
+import 'features/profile/data/repositories/profile_repository_impl.dart';
+import 'features/profile/domain/repositories/profile_repository.dart';
+import 'features/profile/domain/usecases/get_profile.dart';
+import 'features/profile/domain/usecases/update_profile.dart';
+import 'features/profile/presentation/bloc/profile_bloc.dart';
 // Auth
 import 'features/auth/data/datasources/auth_local_data_source.dart';
 import 'features/auth/data/datasources/auth_remote_data_source.dart';
@@ -48,6 +55,7 @@ import 'features/order/presentation/bloc/order_bloc.dart';
 final sl = GetIt.instance;
 
 Future<void> init() async {
+  
   // ----- DATABASE -----
   final dbPath = await getDatabasesPath();
   final database = await openDatabase(
@@ -165,4 +173,18 @@ Future<void> init() async {
 
   // ----- ORDER HISTORY BLOC -----
   sl.registerFactory(() => OrderBloc(getOrders: sl()));
+
+    // ----- PROFILE -----
+  sl.registerLazySingleton<ProfileLocalDataSource>(
+    () => ProfileLocalDataSourceImpl(database: sl()),
+  );
+  sl.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(localDataSource: sl()),
+  );
+  sl.registerLazySingleton(() => GetProfile(sl()));
+  sl.registerLazySingleton(() => UpdateProfile(sl()));
+  sl.registerFactory(() => ProfileBloc(
+        getProfile: sl(),
+        updateProfile: sl(),
+      ));
 }

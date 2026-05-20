@@ -17,12 +17,9 @@ class ECommerceApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        // AuthBloc is provided globally
-        BlocProvider(create: (_) => sl<AuthBloc>()..add(CheckAuthStatus())),
-        // CartBloc is global so we can add to cart from detail screen
-        BlocProvider(create: (_) => sl<CartBloc>()),
-        // OrderBloc global
-        BlocProvider(create: (_) => sl<OrderBloc>()),
+        BlocProvider<AuthBloc>(create: (_) => sl<AuthBloc>()..add(CheckAuthStatus())),
+        BlocProvider<CartBloc>(create: (_) => sl<CartBloc>()),
+        BlocProvider<OrderBloc>(create: (_) => sl<OrderBloc>()),
       ],
       child: MaterialApp(
         title: 'E-Shop',

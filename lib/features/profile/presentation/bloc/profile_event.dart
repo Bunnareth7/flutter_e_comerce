@@ -1,4 +1,10 @@
-part of 'profile_bloc.dart';
+import '../../domain/entities/user_profile.dart';
 
-@immutable
-sealed class ProfileEvent {}
+abstract class ProfileEvent {}
+
+class LoadProfile extends ProfileEvent {}
+
+class UpdateProfile extends ProfileEvent {
+  final UserProfile updatedProfile;
+  UpdateProfile(this.updatedProfile);
+}

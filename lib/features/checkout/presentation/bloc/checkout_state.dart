@@ -1,6 +1,15 @@
-part of 'checkout_bloc.dart';
+abstract class CheckoutState {}
 
-@immutable
-sealed class CheckoutState {}
+class CheckoutInitial extends CheckoutState {}
 
-final class CheckoutInitial extends CheckoutState {}
+class CheckoutLoading extends CheckoutState {}
+
+class CheckoutSuccess extends CheckoutState {
+  final String orderId;
+  CheckoutSuccess(this.orderId);
+}
+
+class CheckoutError extends CheckoutState {
+  final String message;
+  CheckoutError(this.message);
+}

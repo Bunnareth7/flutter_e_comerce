@@ -23,9 +23,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   void _onLoginRequested(LoginRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
-    final result = await loginUseCase(
-      LoginParams(email: event.email, password: event.password),
-    );
+    final result = await loginUseCase(LoginParams(email: event.email, password: event.password));
     result.fold(
       (failure) => emit(AuthError(failure.message)),
       (user) => emit(Authenticated(user)),
@@ -35,8 +33,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   void _onSignUpRequested(SignUpRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     final result = await signUpUseCase(
-      SignUpParams(email: event.email, password: event.password, name: event.name),
-    );
+        SignUpParams(email: event.email, password: event.password, name: event.name));
     result.fold(
       (failure) => emit(AuthError(failure.message)),
       (user) => emit(Authenticated(user)),
@@ -50,10 +47,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _onCheckAuthStatus(CheckAuthStatus event, Emitter<AuthState> emit) async {
-    // Check local cache (optional)
-    // You can inject getLoggedInUser from repository directly or call use case
-    // For simplicity we'll keep in AuthBloc; normally better to inject a use case.
-    // We'll emit Authenticated if user exists, else Unauthenticated.
-    emit(AuthInitial()); // placeholder
+    emit(Unauthenticated());
   }
 }

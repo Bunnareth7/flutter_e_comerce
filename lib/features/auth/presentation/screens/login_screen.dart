@@ -20,8 +20,9 @@ class LoginScreen extends StatelessWidget {
           if (state is Authenticated) {
             Navigator.of(context).pushReplacementNamed('/main');
           } else if (state is AuthError) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(state.message)));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
+            );
           }
         },
         builder: (context, state) {
@@ -33,32 +34,48 @@ class LoginScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                const Icon(Icons.shopping_bag, size: 80, color: Colors.blue),
+                const SizedBox(height: 32),
                 TextField(
                   controller: emailCtrl,
-                  decoration: const InputDecoration(labelText: 'Email'),
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: passCtrl,
                   obscureText: true,
-                  decoration: const InputDecoration(labelText: 'Password'),
+                  decoration: const InputDecoration(
+                    labelText: 'Password',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
                 const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: () {
-                    context.read<AuthBloc>().add(
-                          LoginRequested(
-                            emailCtrl.text.trim(),
-                            passCtrl.text.trim(),
-                          ),
-                        );
-                  },
-                  child: const Text('Login'),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      context.read<AuthBloc>().add(
+                            LoginRequested(
+                              emailCtrl.text.trim(),
+                              passCtrl.text.trim(),
+                            ),
+                          );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.all(16),
+                    ),
+                    child: const Text('Login'),
+                  ),
                 ),
                 TextButton(
                   onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => SignUpScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => SignUpScreen()),
+                    );
                   },
                   child: const Text('Create account'),
                 ),

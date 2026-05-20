@@ -9,7 +9,6 @@ class OrderHistoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // OrderBloc is already provided globally, just load orders when screen builds
     return BlocBuilder<OrderBloc, OrderState>(
       builder: (context, state) {
         if (state is OrderInitial) {
@@ -37,7 +36,6 @@ class OrderHistoryScreen extends StatelessWidget {
                       Text('Date: ${order.date.toString().substring(0, 10)}'),
                       Text('Status: ${order.status}'),
                       const SizedBox(height: 8),
-                      Text('Items:'),
                       ...order.items.map((item) => Text(
                           '${item.productName} x ${item.quantity} - \$${item.price.toStringAsFixed(2)}')),
                       const Divider(),

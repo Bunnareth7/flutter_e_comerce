@@ -7,6 +7,8 @@ import '../../../cart/presentation/bloc/cart_state.dart';
 import '../bloc/checkout_bloc.dart';
 import '../bloc/checkout_event.dart';
 import '../bloc/checkout_state.dart';
+import '../widgets/order_summary.dart';
+import '../widgets/payment_method_selector.dart';
 
 class CheckoutScreen extends StatelessWidget {
   const CheckoutScreen({super.key});
@@ -19,25 +21,38 @@ class CheckoutScreen extends StatelessWidget {
         builder: (context, cartState) {
           if (cartState is CartLoaded) {
             final items = cartState.items;
-            final total = cartState.total;
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Order Summary', style: Theme.of(context).textTheme.titleLarge),
-                  const SizedBox(height: 16),
-                  ...items.map((item) => ListTile(
-                        title: Text(item.productName),
-                        trailing: Text('${item.quantity} x \$${item.price.toStringAsFixed(2)}'),
-                      )),
-                  const Divider(),
-                  Text('Total: \$${total.toStringAsFixed(2)}',
-                      style: Theme.of(context).textTheme.headlineSmall),
-                  const Spacer(),
-                  BlocProvider(
-                    create: (_) => sl<CheckoutBloc>(),
-                    child: BlocConsumer<CheckoutBloc, CheckoutState>(
+            final total = cartState.totalPrice;
+            return BlocProvider(
+              create: (_) => sl<CheckoutBloc>(),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Order Summary',
+                        style: Theme.of(context).textTheme.titleLarge),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: ListView(
+                        children: [
+                          ...items.map((item) => OrderSummaryItem(
+                                name: item.productName,
+                                quantity: item.quantity,
+                                price: item.price,
+                                imageUrl: item.imageUrl,
+                              )),
+                          const Divider(),
+                          Text(
+                            'Total: \$${total.toStringAsFixed(2)}',
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                          const SizedBox(height: 16),
+                          const PaymentMethodSelector(),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    BlocConsumer<CheckoutBloc, CheckoutState>(
                       listener: (context, state) {
                         if (state is CheckoutSuccess) {
                           context.read<CartBloc>().add(ClearCart());
@@ -63,13 +78,14 @@ class CheckoutScreen extends StatelessWidget {
                                     PlaceOrderEvent(items, total),
                                   );
                             },
+                            style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(16)),
                             child: const Text('Place Order'),
                           ),
                         );
                       },
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           }

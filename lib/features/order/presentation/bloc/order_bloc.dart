@@ -1,13 +1,21 @@
-import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
-
-part 'order_event.dart';
-part 'order_state.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../domain/usecases/get_orders.dart';
+import 'order_event.dart';
+import 'order_state.dart';
 
 class OrderBloc extends Bloc<OrderEvent, OrderState> {
-  OrderBloc() : super(OrderInitial()) {
-    on<OrderEvent>((event, emit) {
-      // TODO: implement event handler
-    });
+  final GetOrders getOrders;
+
+  OrderBloc({required this.getOrders}) : super(OrderInitial()) {
+    on<LoadOrders>(_onLoadOrders);
+  }
+
+  void _onLoadOrders(LoadOrders event, Emitter<OrderState> emit) async {
+    emit(OrderLoading());
+    final result = await getOrders(NoParams());
+    result.fold(
+      (failure) => emit(OrderError(failure.message)),
+      (orders) => emit(OrdersLoaded(orders)),
+    );
   }
 }
