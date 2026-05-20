@@ -1,12 +1,11 @@
-import 'package:dartz/dartz.dart';
-import 'package:e_com_app/features/cart/data/models/cart_item_model.dart';
-import 'package:e_com_app/features/checkout/data/model/order_model.dart';
+import 'package:dartz/dartz.dart' hide Order;
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/order.dart';
 import '../../domain/repositories/checkout_repository.dart';
 import '../../../cart/domain/entities/cart_item.dart';
 import '../datasources/checkout_remote_data_source.dart';
 import '../models/order_model.dart';
+import '../../../cart/data/models/cart_item_model.dart';
 
 class CheckoutRepositoryImpl implements CheckoutRepository {
   final CheckoutRemoteDataSource remoteDataSource;

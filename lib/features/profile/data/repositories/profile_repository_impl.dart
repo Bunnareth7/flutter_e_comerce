@@ -1,10 +1,11 @@
 import 'package:dartz/dartz.dart';
-import 'package:e_com_app/features/profile/data/model/user_profile_model.dart';
+//import 'package:e_com_app/features/profile/data/model/user_profile_model.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/user_profile.dart';
 import '../../domain/repositories/profile_repository.dart';
 import '../datasources/profile_local_data_source.dart';
 import '../models/user_profile_model.dart';
+
 
 class ProfileRepositoryImpl implements ProfileRepository {
   final ProfileLocalDataSource localDataSource;

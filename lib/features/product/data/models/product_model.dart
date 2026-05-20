@@ -10,6 +10,9 @@ class ProductModel extends Product {
     String category = 'General',
     bool isAvailable = true,
     int stockQuantity = 0,
+    double rating = 4.5,
+    int reviewCount = 0,
+    double? discountPercent,
   }) : super(
           id: id,
           name: name,
@@ -19,6 +22,9 @@ class ProductModel extends Product {
           category: category,
           isAvailable: isAvailable,
           stockQuantity: stockQuantity,
+          rating: rating,
+          reviewCount: reviewCount,
+          discountPercent: discountPercent,
         );
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
@@ -31,6 +37,9 @@ class ProductModel extends Product {
       category: json['category'] ?? 'General',
       isAvailable: json['isAvailable'] ?? true,
       stockQuantity: json['stockQuantity'] ?? 0,
+      rating: (json['rating'] as num?)?.toDouble() ?? 4.5,
+      reviewCount: json['reviewCount'] ?? 0,
+      discountPercent: (json['discountPercent'] as num?)?.toDouble(),
     );
   }
 
@@ -44,6 +53,9 @@ class ProductModel extends Product {
       'category': category,
       'isAvailable': isAvailable,
       'stockQuantity': stockQuantity,
+      'rating': rating,
+      'reviewCount': reviewCount,
+      'discountPercent': discountPercent,
     };
   }
 }

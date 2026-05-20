@@ -1,4 +1,4 @@
-import 'package:dartz/dartz.dart';
+import 'package:dartz/dartz.dart' hide Order;
 import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../entities/order.dart';
@@ -13,5 +13,6 @@ class SaveOrder implements UseCase<void, SaveOrderParams> {
   final OrderRepository repository;
   SaveOrder(this.repository);
   @override
-  Future<Either<Failure, void>> call(SaveOrderParams params) => repository.saveOrder(params.order);
+  Future<Either<Failure, void>> call(SaveOrderParams params) =>
+      repository.saveOrder(params.order);
 }

@@ -1,7 +1,7 @@
-import 'package:e_com_app/features/order/data/datasources/product_remote_data_source.dart';
 import 'package:get_it/get_it.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+
 
 // Auth
 import 'features/auth/data/datasources/auth_local_data_source.dart';
@@ -10,11 +10,12 @@ import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/domain/usecases/login_usecase.dart';
 import 'features/auth/domain/usecases/signup_usecase.dart';
-import 'features/auth/domain/usecases/logout_usecase.dart' hide LoginUseCase;
+import 'features/auth/domain/usecases/logout_usecase.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 
 // Product
 import 'features/product/data/datasources/product_remote_data_source.dart';
+
 import 'features/product/data/repositories/product_repository_impl.dart';
 import 'features/product/domain/repositories/product_repository.dart';
 import 'features/product/domain/usecases/get_products.dart';

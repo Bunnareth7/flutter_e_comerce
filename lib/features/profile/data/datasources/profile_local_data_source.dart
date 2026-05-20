@@ -1,4 +1,4 @@
-import 'package:e_com_app/features/profile/data/model/user_profile_model.dart';
+
 import 'package:sqflite/sqflite.dart';
 import '../models/user_profile_model.dart';
 

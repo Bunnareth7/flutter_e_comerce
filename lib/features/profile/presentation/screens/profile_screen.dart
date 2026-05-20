@@ -8,6 +8,7 @@ import '../bloc/profile_bloc.dart';
 import '../bloc/profile_event.dart';
 import '../bloc/profile_state.dart';
 import '../widgets/profile_avatar.dart';
+import '../bloc/profile_event.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -140,7 +141,7 @@ class ProfileScreen extends StatelessWidget {
                 address: addressCtrl.text.trim().isEmpty ? null : addressCtrl.text.trim(),
                 avatarUrl: profile.avatarUrl,
               );
-              context.read<ProfileBloc>().add(UpdateProfile(updated));
+              context.read<ProfileBloc>().add(UpdateProfileEvent(updated));
               Navigator.pop(ctx);
             },
             child: const Text('Save'),

@@ -1,4 +1,6 @@
+import 'package:e_com_app/features/checkout/domain/entities/order.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/usecases/usecase.dart';
 import '../../domain/usecases/get_orders.dart';
 import 'order_event.dart';
 import 'order_state.dart';
@@ -15,7 +17,11 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
     final result = await getOrders(NoParams());
     result.fold(
       (failure) => emit(OrderError(failure.message)),
-      (orders) => emit(OrdersLoaded(orders)),
+      (orders) {
+        // Explicit cast to List<Order>
+        final orderList = orders.map((e) => e as Order).toList();
+        emit(OrdersLoaded(orderList));
+      },
     );
   }
 }

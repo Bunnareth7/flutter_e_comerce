@@ -1,7 +1,8 @@
+// TODO Implement this library.
 import 'dart:convert';
-import '../../../cart/data/models/cart_item_model.dart';
 import '../../domain/entities/order.dart';
-//export '../../../checkout/data/models/order_model.dart';
+import '../../../cart/data/models/cart_item_model.dart';
+
 class OrderModel extends Order {
   OrderModel({
     required String id,
@@ -15,7 +16,7 @@ class OrderModel extends Order {
     return OrderModel(
       id: json['id'],
       items: (json['items'] is String
-              ? json.decode(json['items']) as List
+              ? jsonDecode(json['items']) as List
               : json['items'] as List)
           .map((e) => CartItemModel.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -28,7 +29,7 @@ class OrderModel extends Order {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'items': json.encode(items.map((e) => (e as CartItemModel).toJson()).toList()),
+      'items': jsonEncode(items.map((e) => (e as CartItemModel).toJson()).toList()),
       'total': total,
       'date': date.toIso8601String(),
       'status': status,

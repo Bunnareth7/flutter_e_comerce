@@ -7,6 +7,9 @@ class Product {
   final String category;
   final bool isAvailable;
   final int stockQuantity;
+  final double rating;             // NEW
+  final int reviewCount;           // NEW
+  final double? discountPercent;   // NEW – nullable, show old price if >0
 
   Product({
     required this.id,
@@ -17,5 +20,8 @@ class Product {
     this.category = 'General',
     this.isAvailable = true,
     this.stockQuantity = 0,
+    this.rating = 4.5,
+    this.reviewCount = 0,
+    this.discountPercent,
   });
 }
