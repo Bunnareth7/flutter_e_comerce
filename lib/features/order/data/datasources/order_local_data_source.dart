@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'package:e_com_app/features/checkout/data/model/order_model.dart';
 import 'package:sqflite/sqflite.dart';
 import '../models/order_model.dart';
+import '../../domain/entities/order.dart';
+import '../models/order_model.dart';
+
 
 abstract class OrderLocalDataSource {
   Future<List<OrderModel>> getOrders();

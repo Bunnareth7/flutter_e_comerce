@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/usecases/usecase.dart';
 import '../../domain/usecases/get_profile.dart';
 import '../../domain/usecases/update_profile.dart';
 import 'profile_event.dart';
@@ -13,7 +14,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     required this.updateProfile,
   }) : super(ProfileInitial()) {
     on<LoadProfile>(_onLoadProfile);
-    on<UpdateProfile>(_onUpdateProfile);
+    on<UpdateProfileEvent>(_onUpdateProfile);
   }
 
   void _onLoadProfile(LoadProfile event, Emitter<ProfileState> emit) async {
@@ -25,7 +26,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     );
   }
 
-  void _onUpdateProfile(UpdateProfile event, Emitter<ProfileState> emit) async {
+  void _onUpdateProfile(UpdateProfileEvent event, Emitter<ProfileState> emit) async {
     emit(ProfileUpdating());
     final result = await updateProfile(UpdateProfileParams(event.updatedProfile));
     result.fold(

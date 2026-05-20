@@ -1,3 +1,5 @@
+import 'package:e_com_app/features/checkout/data/model/order_model.dart';
+
 import '../models/order_model.dart';
 
 abstract class CheckoutRemoteDataSource {

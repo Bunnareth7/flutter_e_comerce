@@ -1,3 +1,7 @@
+import 'package:e_com_app/features/cart/presentation/bloc/cart_bloc.dart';
+import 'package:e_com_app/features/order/presentation/bloc/order_bloc.dart';
+import 'package:e_com_app/features/order/presentation/screen/order_history_screen.dart';
+import 'package:e_com_app/features/profile/presentation/screen/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'injection_container.dart';
@@ -7,8 +11,8 @@ import 'features/auth/presentation/bloc/auth_state.dart';
 import 'features/auth/presentation/screens/login_screen.dart';
 import 'features/product/presentation/screens/product_list_screen.dart';
 import 'features/cart/presentation/screens/cart_screen.dart';
-import 'features/order/presentation/screens/order_history_screen.dart';
-import 'features/profile/presentation/screens/profile_screen.dart';
+//import 'features/order/presentation/screens/order_history_screen.dart';
+//import 'features/profile/presentation/screens/profile_screen.dart';
 
 class ECommerceApp extends StatelessWidget {
   const ECommerceApp({super.key});
@@ -30,12 +34,12 @@ class ECommerceApp extends StatelessWidget {
             if (state is Authenticated) {
               return const MainScreen();
             }
-            return const LoginScreen();
+            return  LoginScreen();
           },
         ),
         routes: {
-          '/main': (_) => const MainScreen(),
-          '/login': (_) => const LoginScreen(),
+          '/main': (_) =>  MainScreen(),
+          '/login': (_) => LoginScreen(),
         },
       ),
     );

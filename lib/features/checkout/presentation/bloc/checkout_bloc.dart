@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/usecases/place_order.dart';
 import '../../../order/domain/usecases/save_order.dart';
-import '../../../order/domain/entities/order.dart';
 import 'checkout_event.dart';
 import 'checkout_state.dart';
 

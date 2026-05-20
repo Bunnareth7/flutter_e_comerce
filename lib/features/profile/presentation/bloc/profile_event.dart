@@ -4,7 +4,7 @@ abstract class ProfileEvent {}
 
 class LoadProfile extends ProfileEvent {}
 
-class UpdateProfile extends ProfileEvent {
+class UpdateProfileEvent extends ProfileEvent {
   final UserProfile updatedProfile;
-  UpdateProfile(this.updatedProfile);
+  UpdateProfileEvent(this.updatedProfile);
 }

@@ -1,21 +1,14 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/usecases/usecase.dart';
-import '../entities/user.dart';
 import '../repositories/auth_repository.dart';
 
-class LoginParams {
-  final String email;
-  final String password;
-  LoginParams({required this.email, required this.password});
-}
-
-class LoginUseCase implements UseCase<User, LoginParams> {
+class LogoutUseCase implements UseCase<void, NoParams> {
   final AuthRepository repository;
-  LoginUseCase(this.repository);
+  LogoutUseCase(this.repository);
 
   @override
-  Future<Either<Failure, User>> call(LoginParams params) {
-    return repository.login(params.email, params.password);
+  Future<Either<Failure, void>> call(NoParams params) {
+    return repository.logout();
   }
-}//returns void
+}

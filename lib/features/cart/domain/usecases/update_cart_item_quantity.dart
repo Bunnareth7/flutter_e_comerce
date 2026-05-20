@@ -12,9 +12,7 @@ class UpdateCartItemQuantityParams {
 class UpdateCartItemQuantity implements UseCase<void, UpdateCartItemQuantityParams> {
   final CartRepository repository;
   UpdateCartItemQuantity(this.repository);
-
   @override
-  Future<Either<Failure, void>> call(UpdateCartItemQuantityParams params) {
-    return repository.updateQuantity(params.productId, params.quantity);
-  }
+  Future<Either<Failure, void>> call(UpdateCartItemQuantityParams params) =>
+      repository.updateQuantity(params.productId, params.quantity);
 }

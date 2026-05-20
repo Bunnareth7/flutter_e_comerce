@@ -1,18 +1,19 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/usecases/usecase.dart';
 import '../../domain/usecases/get_cart.dart';
-import '../../domain/usecases/add_to_cart.dart';
-import '../../domain/usecases/remove_from_cart.dart';
-import '../../domain/usecases/update_cart_item_quantity.dart';
-import '../../domain/usecases/clear_cart.dart';
+import '../../domain/usecases/add_to_cart.dart' as add_usecase;
+import '../../domain/usecases/remove_from_cart.dart' as remove_usecase;
+import '../../domain/usecases/update_cart_item_quantity.dart' as update_usecase;
+import '../../domain/usecases/clear_cart.dart' as clear_usecase;
 import 'cart_event.dart';
 import 'cart_state.dart';
 
 class CartBloc extends Bloc<CartEvent, CartState> {
   final GetCart getCart;
-  final AddToCart addToCart;
-  final RemoveFromCart removeFromCart;
-  final UpdateCartItemQuantity updateQuantity;
-  final ClearCart clearCart;
+  final add_usecase.AddToCart addToCart;
+  final remove_usecase.RemoveFromCart removeFromCart;
+  final update_usecase.UpdateCartItemQuantity updateQuantity;
+  final clear_usecase.ClearCart clearCart;
 
   CartBloc({
     required this.getCart,
@@ -38,7 +39,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   }
 
   void _onAddToCart(AddToCart event, Emitter<CartState> emit) async {
-    final result = await addToCart(AddToCartParams(event.productId, event.productName, event.price, event.imageUrl));
+    final result = await addToCart(add_usecase.AddToCartParams(event.productId, event.productName, event.price, event.imageUrl));
     result.fold(
       (failure) => emit(CartError(failure.message)),
       (_) => add(LoadCart()),
@@ -46,7 +47,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   }
 
   void _onRemoveFromCart(RemoveFromCart event, Emitter<CartState> emit) async {
-    final result = await removeFromCart(RemoveFromCartParams(event.productId));
+    final result = await removeFromCart(remove_usecase.RemoveFromCartParams(event.productId));
     result.fold(
       (failure) => emit(CartError(failure.message)),
       (_) => add(LoadCart()),
@@ -54,7 +55,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   }
 
   void _onUpdateCartItemQuantity(UpdateCartItemQuantity event, Emitter<CartState> emit) async {
-    final result = await updateQuantity(UpdateCartItemQuantityParams(event.productId, event.quantity));
+    final result = await updateQuantity(update_usecase.UpdateCartItemQuantityParams(event.productId, event.quantity));
     result.fold(
       (failure) => emit(CartError(failure.message)),
       (_) => add(LoadCart()),

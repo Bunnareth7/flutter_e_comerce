@@ -4,19 +4,19 @@ import '../../../../core/usecases/usecase.dart';
 import '../entities/user.dart';
 import '../repositories/auth_repository.dart';
 
-class LoginParams {
+class SignUpParams {
   final String email;
   final String password;
-  LoginParams({required this.email, required this.password});
+  final String name;
+  SignUpParams({required this.email, required this.password, required this.name});
 }
 
-class LoginUseCase implements UseCase<User, LoginParams> {
+class SignUpUseCase implements UseCase<User, SignUpParams> {
   final AuthRepository repository;
-  LoginUseCase(this.repository);
+  SignUpUseCase(this.repository);
 
   @override
-  Future<Either<Failure, User>> call(LoginParams params) {
-    return repository.login(params.email, params.password);
+  Future<Either<Failure, User>> call(SignUpParams params) {
+    return repository.signUp(params.email, params.password, params.name);
   }
 }
-//need change

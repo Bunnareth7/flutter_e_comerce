@@ -9,7 +9,7 @@ class SignUpScreen extends StatelessWidget {
   final TextEditingController emailCtrl = TextEditingController();
   final TextEditingController passCtrl = TextEditingController();
 
-  SignUpScreen({super.key});
+   SignUpScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,62 +20,27 @@ class SignUpScreen extends StatelessWidget {
           if (state is Authenticated) {
             Navigator.of(context).pushReplacementNamed('/main');
           } else if (state is AuthError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         builder: (context, state) {
-          if (state is AuthLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+          if (state is AuthLoading) return const Center(child: CircularProgressIndicator());
           return Padding(
             padding: const EdgeInsets.all(24.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                TextField(
-                  controller: nameCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Name',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
+                TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Name')),
                 const SizedBox(height: 16),
-                TextField(
-                  controller: emailCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
+                TextField(controller: emailCtrl, decoration: const InputDecoration(labelText: 'Email')),
                 const SizedBox(height: 16),
-                TextField(
-                  controller: passCtrl,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
+                TextField(controller: passCtrl, obscureText: true, decoration: const InputDecoration(labelText: 'Password')),
                 const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      context.read<AuthBloc>().add(
-                            SignUpRequested(
-                              emailCtrl.text.trim(),
-                              passCtrl.text.trim(),
-                              nameCtrl.text.trim(),
-                            ),
-                          );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.all(16),
-                    ),
-                    child: const Text('Sign Up'),
-                  ),
+                ElevatedButton(
+                  onPressed: () {
+                    context.read<AuthBloc>().add(SignUpRequested(emailCtrl.text.trim(), passCtrl.text.trim(), nameCtrl.text.trim()));
+                  },
+                  child: const Text('Sign Up'),
                 ),
               ],
             ),

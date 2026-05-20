@@ -4,6 +4,8 @@ import '../../domain/usecases/get_product_by_id.dart';
 import 'product_event.dart';
 import 'product_state.dart';
 
+import '../../../../core/usecases/usecase.dart';
+
 class ProductBloc extends Bloc<ProductEvent, ProductState> {
   final GetProducts getProducts;
   final GetProductById getProductById;
