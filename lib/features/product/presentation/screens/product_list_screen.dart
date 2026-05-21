@@ -1,3 +1,4 @@
+// lib/features/product/presentation/screens/product_list_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/product_bloc.dart';
@@ -14,13 +15,23 @@ class ProductListScreen extends StatefulWidget {
 
 class _ProductListScreenState extends State<ProductListScreen> {
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
+
   String _selectedCategory = 'All';
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
-    // ProductBloc is provided globally in app.dart, so we can access it here
+    // ProductBloc is provided globally in app.dart
     context.read<ProductBloc>().add(LoadProducts());
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -30,17 +41,33 @@ class _ProductListScreenState extends State<ProductListScreen> {
         child: CustomScrollView(
           controller: _scrollController,
           slivers: [
-            // App Bar with search
+            // Search Bar + Notifications
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
                 child: Row(
                   children: [
                     Expanded(
                       child: TextField(
+                        controller: _searchController,
+                        onChanged: (value) => setState(
+                          () => _searchQuery = value.trim().toLowerCase(),
+                        ),
                         decoration: InputDecoration(
                           hintText: 'Search products...',
                           prefixIcon: const Icon(Icons.search),
+                          suffixIcon: _searchQuery.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    setState(() => _searchQuery = '');
+                                  },
+                                )
+                              : null,
                           filled: true,
                           fillColor: Colors.grey[200],
                           border: OutlineInputBorder(
@@ -51,12 +78,32 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Badge(
-                      label: const Text('3'),
-                      child: IconButton(
-                        icon: const Icon(Icons.notifications_outlined),
-                        onPressed: () {},
-                      ),
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.notifications_outlined),
+                          onPressed: () {},
+                        ),
+                        Positioned(
+                          right: 4,
+                          top: 4,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Text(
+                              '3',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -69,9 +116,21 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 height: 160,
                 child: PageView(
                   children: [
-                    _buildBanner('Summer Sale', '50% Off\non Electronics', Colors.orange),
-                    _buildBanner('New Arrivals', 'Latest Fashion\nfor you', Colors.purple),
-                    _buildBanner('Free Shipping', 'On orders over\n\$50', Colors.teal),
+                    _buildBanner(
+                      'Summer Sale',
+                      '50% Off\non Electronics',
+                      Colors.orange,
+                    ),
+                    _buildBanner(
+                      'New Arrivals',
+                      'Latest Fashion\nfor you',
+                      Colors.purple,
+                    ),
+                    _buildBanner(
+                      'Free Shipping',
+                      'On orders over\n\$50',
+                      Colors.teal,
+                    ),
                   ],
                 ),
               ),
@@ -102,14 +161,20 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Popular Products', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Popular Products',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     TextButton(onPressed: () {}, child: const Text('See All')),
                   ],
                 ),
               ),
             ),
 
-            // Product Grid
+            // Product Grid (with search + category filter)
             BlocBuilder<ProductBloc, ProductState>(
               builder: (context, state) {
                 if (state is ProductLoading) {
@@ -117,19 +182,50 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     child: Center(child: CircularProgressIndicator()),
                   );
                 } else if (state is ProductsLoaded) {
-                  final filtered = _selectedCategory == 'All'
-                      ? state.products
-                      : state.products.where((p) => p.category == _selectedCategory).toList();
+                  // Apply both category and search filters
+                  final filtered = state.products.where((p) {
+                    final matchesCategory =
+                        _selectedCategory == 'All' ||
+                        p.category == _selectedCategory;
+                    final matchesSearch =
+                        _searchQuery.isEmpty ||
+                        p.name.toLowerCase().contains(_searchQuery) ||
+                        p.description.toLowerCase().contains(_searchQuery);
+                    return matchesCategory && matchesSearch;
+                  }).toList();
+
+                  if (filtered.isEmpty) {
+                    return SliverFillRemaining(
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.search_off,
+                              size: 60,
+                              color: Colors.grey.shade400,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No products found',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
 
                   return SliverPadding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     sliver: SliverGrid(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 0.62,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.62,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                          ),
                       delegate: SliverChildBuilderDelegate(
                         (context, index) => _buildProductCard(filtered[index]),
                         childCount: filtered.length,
@@ -150,6 +246,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
     );
   }
 
+  // ---------- Helper Widgets ----------
+
   Widget _buildBanner(String title, String subtitle, Color color) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -169,13 +267,27 @@ class _ProductListScreenState extends State<ProductListScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(title, style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                Text(
+                  title,
+                  style: const TextStyle(color: Colors.white70, fontSize: 14),
+                ),
                 const SizedBox(height: 6),
-                Text(subtitle, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
           ),
-          const Icon(Icons.shopping_bag_outlined, size: 50, color: Colors.white70),
+          const Icon(
+            Icons.shopping_bag_outlined,
+            size: 50,
+            color: Colors.white70,
+          ),
         ],
       ),
     );
@@ -202,7 +314,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   Widget _buildProductCard(product) {
-    final hasDiscount = product.discountPercent != null && product.discountPercent! > 0;
+    final hasDiscount =
+        product.discountPercent != null && product.discountPercent! > 0;
     final discountedPrice = hasDiscount
         ? product.price * (1 - product.discountPercent! / 100)
         : product.price;
@@ -210,7 +323,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => ProductDetailScreen(product: product)),
+        MaterialPageRoute(
+          builder: (_) => ProductDetailScreen(product: product),
+        ),
       ),
       child: Container(
         decoration: BoxDecoration(
@@ -232,9 +347,13 @@ class _ProductListScreenState extends State<ProductListScreen> {
               child: Stack(
                 children: [
                   ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
                     child: Image.network(
-                      product.imageUrl,
+                      product.imageUrls.isNotEmpty
+                          ? product.imageUrls[0]
+                          : 'https://via.placeholder.com/150',
                       fit: BoxFit.cover,
                       width: double.infinity,
                     ),
@@ -244,14 +363,21 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       top: 8,
                       left: 8,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.red,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
                           '${product.discountPercent!.round()}% OFF',
-                          style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -277,32 +403,67 @@ class _ProductListScreenState extends State<ProductListScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(product.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                  Text(
+                    product.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                  ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
                       Icon(Icons.star, size: 14, color: Colors.amber.shade700),
                       const SizedBox(width: 4),
-                      Text('${product.rating}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+                      Text(
+                        '${product.rating}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                       const SizedBox(width: 4),
-                      Text('(${product.reviewCount})', style: TextStyle(fontSize: 11, color: Colors.grey.shade600)),
+                      Text(
+                        '(${product.reviewCount})',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 6),
                   Row(
                     children: [
                       if (hasDiscount) ...[
-                        Text('\$${discountedPrice.toStringAsFixed(2)}',
-                            style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 15)),
+                        Text(
+                          '\$${discountedPrice.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
+                        ),
                         const SizedBox(width: 6),
-                        Text('\$${product.price.toStringAsFixed(2)}',
-                            style: TextStyle(decoration: TextDecoration.lineThrough, color: Colors.grey, fontSize: 12)),
+                        Text(
+                          '\$${product.price.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            decoration: TextDecoration.lineThrough,
+                            color: Colors.grey,
+                            fontSize: 12,
+                          ),
+                        ),
                       ] else
-                        Text('\$${product.price.toStringAsFixed(2)}',
-                            style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 15)),
+                        Text(
+                          '\$${product.price.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
+                        ),
                     ],
                   ),
                 ],

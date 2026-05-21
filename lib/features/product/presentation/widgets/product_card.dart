@@ -17,13 +17,15 @@ class ProductCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(8),
+              ),
               child: Image.network(
-                product.imageUrl,
-                height: 150,
-                width: double.infinity,
+                product.imageUrls.isNotEmpty
+                    ? product.imageUrls[0]
+                    : 'https://via.placeholder.com/150',
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => const Icon(Icons.image, size: 100),
+                width: double.infinity,
               ),
             ),
             Padding(
@@ -31,11 +33,17 @@ class ProductCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(product.name, style: Theme.of(context).textTheme.titleMedium),
+                  Text(
+                    product.name,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                   const SizedBox(height: 4),
                   Text(
                     '\$${product.price.toStringAsFixed(2)}',
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
                   ),
                 ],
               ),

@@ -3,6 +3,16 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 
+// Wishlist
+import 'features/wishlist/data/datasources/wishlist_local_data_source.dart';
+import 'features/wishlist/data/repositories/wishlist_repository_impl.dart';
+import 'features/wishlist/domain/repositories/wishlist_repository.dart';
+import 'features/wishlist/domain/usecases/get_wishlist.dart';
+import 'features/wishlist/domain/usecases/add_to_wishlist.dart';
+import 'features/wishlist/domain/usecases/remove_from_wishlist.dart';
+import 'features/wishlist/domain/usecases/check_wishlist.dart';
+import 'features/wishlist/presentation/bloc/wishlist_bloc.dart';
+
 // Auth
 import 'features/auth/data/datasources/auth_local_data_source.dart';
 import 'features/auth/data/datasources/auth_remote_data_source.dart';
@@ -58,6 +68,10 @@ import 'features/profile/presentation/bloc/profile_bloc.dart';
 
 final sl = GetIt.instance;
 
+
+
+
+
 Future<void> init() async {
   final dbPath = await getDatabasesPath();
   final database = await openDatabase(
@@ -93,6 +107,14 @@ Future<void> init() async {
           status TEXT
         )
       ''');
+      await db.execute('''
+  CREATE TABLE wishlist_items (
+    productId TEXT PRIMARY KEY,
+    productName TEXT,
+    price REAL,
+    imageUrl TEXT
+  )
+''');
     },
   );
   sl.registerLazySingleton<Database>(() => database);
@@ -149,4 +171,20 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetProfile(sl()));
   sl.registerLazySingleton(() => UpdateProfile(sl()));
   sl.registerFactory(() => ProfileBloc(getProfile: sl(), updateProfile: sl()));
+
+    // Wishlist
+  sl.registerLazySingleton<WishlistLocalDataSource>(
+      () => WishlistLocalDataSourceImpl(database: sl()));
+  sl.registerLazySingleton<WishlistRepository>(
+      () => WishlistRepositoryImpl(localDataSource: sl()));
+  sl.registerLazySingleton(() => GetWishlist(sl()));
+  sl.registerLazySingleton(() => AddToWishlist(sl()));
+  sl.registerLazySingleton(() => RemoveFromWishlist(sl()));
+  sl.registerLazySingleton(() => CheckWishlist(sl()));
+  sl.registerFactory(() => WishlistBloc(
+        getWishlist: sl(),
+        addToWishlist: sl(),
+        removeFromWishlist: sl(),
+        checkWishlist: sl(),
+      ));
 }

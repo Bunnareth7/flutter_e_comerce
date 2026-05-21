@@ -1,0 +1,14 @@
+import 'package:dartz/dartz.dart';
+import 'package:e_com_app/features/wishlist/domain/entities/wishlist_item.dart';
+import '../../../../core/error/failures.dart';
+import '../../../../core/usecases/usecase.dart';
+import '../entities/wishlist_item.dart';
+import '../repositories/wishlist_repository.dart';
+
+class GetWishlist implements UseCase<List<WishlistItem>, NoParams> {
+  final WishlistRepository repository;
+  GetWishlist(this.repository);
+  @override
+  Future<Either<Failure, List<WishlistItem>>> call(NoParams params) =>
+      repository.getWishlistItems();
+}
