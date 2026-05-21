@@ -1,6 +1,8 @@
+
 import 'package:get_it/get_it.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+
 
 
 // Wishlist
@@ -15,7 +17,7 @@ import 'features/wishlist/presentation/bloc/wishlist_bloc.dart';
 
 // Auth
 import 'features/auth/data/datasources/auth_local_data_source.dart';
-import 'features/auth/data/datasources/auth_remote_data_source.dart';
+import 'features/auth/data/datasources/auth_remote_data_source_firebase.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/domain/usecases/login_usecase.dart';
@@ -121,7 +123,7 @@ Future<void> init() async {
 
   // Auth
   sl.registerLazySingleton<AuthLocalDataSource>(() => AuthLocalDataSourceImpl(database: sl()));
-  sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl());
+  sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceFirebase());
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(localDataSource: sl(), remoteDataSource: sl()));
   sl.registerLazySingleton(() => LoginUseCase(sl()));
   sl.registerLazySingleton(() => SignUpUseCase(sl()));

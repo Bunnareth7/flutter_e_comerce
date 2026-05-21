@@ -9,12 +9,12 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   final List<ProductModel> _mockProducts = [
     ProductModel(
       id: '1', name: 'Wireless Headphones',
-      description: 'Noise cancelling bluetooth headphones with 30h battery. Immersive sound with deep bass.',
+      description: 'Noise cancelling bluetooth headphones with 30h battery.',
       price: 79.99,
       imageUrls: [
-        'https://via.placeholder.com/300/FF6C63/FFFFFF?text=Headphones1',
-        'https://via.placeholder.com/300/6C63FF/FFFFFF?text=Headphones2',
-        'https://via.placeholder.com/300/63FF6C/FFFFFF?text=Headphones3',
+        'https://picsum.photos/400/400?random=1',
+        'https://picsum.photos/400/400?random=2',
+        'https://picsum.photos/400/400?random=3',
       ],
       category: 'Electronics', stockQuantity: 10,
       rating: 4.7, reviewCount: 230, discountPercent: 15,
@@ -22,11 +22,11 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     ),
     ProductModel(
       id: '2', name: 'Running Shoes',
-      description: 'Lightweight mesh running shoes with responsive cushioning.',
+      description: 'Lightweight mesh running shoes.',
       price: 120.0,
       imageUrls: [
-        'https://via.placeholder.com/300/FF6C63/FFFFFF?text=Shoes1',
-        'https://via.placeholder.com/300/6C63FF/FFFFFF?text=Shoes2',
+        'https://picsum.photos/400/400?random=4',
+        'https://picsum.photos/400/400?random=5',
       ],
       category: 'Sports', stockQuantity: 20,
       rating: 4.3, reviewCount: 89,
@@ -34,11 +34,11 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     ),
     ProductModel(
       id: '3', name: 'Smart Watch',
-      description: 'Fitness tracker with heart rate & GPS. Water resistant up to 50m.',
+      description: 'Fitness tracker with heart rate & GPS.',
       price: 249.99,
       imageUrls: [
-        'https://via.placeholder.com/300/63FF6C/FFFFFF?text=Watch1',
-        'https://via.placeholder.com/300/FF6C63/FFFFFF?text=Watch2',
+        'https://picsum.photos/400/400?random=6',
+        'https://picsum.photos/400/400?random=7',
       ],
       category: 'Electronics', stockQuantity: 5,
       rating: 4.8, reviewCount: 512, discountPercent: 20,
@@ -46,11 +46,11 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     ),
     ProductModel(
       id: '4', name: 'Backpack',
-      description: 'Water-resistant laptop backpack with USB charging port.',
+      description: 'Water-resistant laptop backpack.',
       price: 45.50,
       imageUrls: [
-        'https://via.placeholder.com/300/6C63FF/FFFFFF?text=Backpack1',
-        'https://via.placeholder.com/300/FF6C63/FFFFFF?text=Backpack2',
+        'https://picsum.photos/400/400?random=8',
+        'https://picsum.photos/400/400?random=9',
       ],
       category: 'Accessories', stockQuantity: 30,
       rating: 4.1, reviewCount: 45,
@@ -58,10 +58,10 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     ),
     ProductModel(
       id: '5', name: 'Coffee Mug',
-      description: 'Thermal insulated travel mug. Keeps drinks hot for 6 hours.',
+      description: 'Thermal insulated travel mug.',
       price: 15.99,
       imageUrls: [
-        'https://via.placeholder.com/300/FF6C63/FFFFFF?text=Mug1',
+        'https://picsum.photos/400/400?random=10',
       ],
       category: 'Home', stockQuantity: 50,
       rating: 4.5, reviewCount: 120, discountPercent: 10,

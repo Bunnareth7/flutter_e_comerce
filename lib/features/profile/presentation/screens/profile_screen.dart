@@ -22,14 +22,14 @@ class ProfileScreen extends StatelessWidget {
         body: BlocConsumer<ProfileBloc, ProfileState>(
           listener: (context, state) {
             if (state is ProfileUpdateSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Profile updated')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Profile updated')));
               context.read<ProfileBloc>().add(LoadProfile());
             } else if (state is ProfileError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.message)),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message)));
             }
           },
           builder: (context, state) {
@@ -60,7 +60,8 @@ class ProfileScreen extends StatelessWidget {
           _buildInfoRow('Name', profile.name),
           _buildInfoRow('Email', profile.email),
           if (profile.phone != null) _buildInfoRow('Phone', profile.phone),
-          if (profile.address != null) _buildInfoRow('Address', profile.address),
+          if (profile.address != null)
+            _buildInfoRow('Address', profile.address),
           const SizedBox(height: 30),
           ElevatedButton.icon(
             onPressed: () => _showEditDialog(context, profile),
@@ -71,6 +72,9 @@ class ProfileScreen extends StatelessWidget {
           OutlinedButton.icon(
             onPressed: () {
               context.read<AuthBloc>().add(LogoutRequested());
+              Navigator.of(
+                context,
+              ).pushNamedAndRemoveUntil('/login', (route) => false);
             },
             icon: const Icon(Icons.logout),
             label: const Text('Logout'),
@@ -89,7 +93,10 @@ class ProfileScreen extends StatelessWidget {
         children: [
           SizedBox(
             width: 100,
-            child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(
+              label,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
           Expanded(child: Text(value ?? 'Not set')),
         ],
@@ -137,8 +144,12 @@ class ProfileScreen extends StatelessWidget {
                 id: profile.id,
                 email: profile.email,
                 name: nameCtrl.text.trim(),
-                phone: phoneCtrl.text.trim().isEmpty ? null : phoneCtrl.text.trim(),
-                address: addressCtrl.text.trim().isEmpty ? null : addressCtrl.text.trim(),
+                phone: phoneCtrl.text.trim().isEmpty
+                    ? null
+                    : phoneCtrl.text.trim(),
+                address: addressCtrl.text.trim().isEmpty
+                    ? null
+                    : addressCtrl.text.trim(),
                 avatarUrl: profile.avatarUrl,
               );
               context.read<ProfileBloc>().add(UpdateProfileEvent(updated));
