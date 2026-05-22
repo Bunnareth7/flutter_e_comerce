@@ -5,6 +5,7 @@ import '../models/user_model.dart';
 abstract class AuthRemoteDataSource {
   Future<UserModel> login(String email, String password);
   Future<UserModel> signUp(String email, String password, String name);
+  Future<void> resetPassword(String email);   // <-- new
 }
 
 class AuthRemoteDataSourceFirebase implements AuthRemoteDataSource {
@@ -16,7 +17,6 @@ class AuthRemoteDataSourceFirebase implements AuthRemoteDataSource {
       final credential = await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
       final user = credential.user!;
-      // In your firebase_auth version, getIdToken() returns String?
       final String? token = await user.getIdToken();
       log('login success for ${user.email}');
       return UserModel(
@@ -37,7 +37,6 @@ class AuthRemoteDataSourceFirebase implements AuthRemoteDataSource {
           email: email, password: password);
       final user = credential.user!;
       await user.updateDisplayName(name);
-      // In your firebase_auth version, getIdToken() returns String?
       final String? token = await user.getIdToken();
       log('signUp success for $email');
       return UserModel(
@@ -50,4 +49,11 @@ class AuthRemoteDataSourceFirebase implements AuthRemoteDataSource {
       throw Exception(e.message);
     }
   }
+
+  // ---------- New: Password Reset ----------
+  @override
+  Future<void> resetPassword(String email) async {
+    await _firebaseAuth.sendPasswordResetEmail(email: email);
+  }
+  
 }

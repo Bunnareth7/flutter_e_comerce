@@ -1,12 +1,11 @@
 import 'package:dartz/dartz.dart';
-import 'package:e_com_app/features/auth/data/datasources/auth_remote_data_source_firebase.dart';
-import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_local_data_source.dart';
-//import '../datasources/auth_remote_data_source.dart';
+import '../datasources/auth_remote_data_source_firebase.dart';
 import '../models/user_model.dart';
+import '../datasources/auth_remote_data_source_firebase.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
@@ -32,7 +31,8 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, User>> signUp(
       String email, String password, String name) async {
     try {
-      final userModel = await remoteDataSource.signUp(email, password, name);
+      final userModel =
+          await remoteDataSource.signUp(email, password, name);
       await localDataSource.cacheUser(userModel);
       return Right(userModel);
     } on Exception catch (e) {
@@ -52,7 +52,16 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<User?> getLoggedInUser() async {
-    final userModel = await localDataSource.getLastUser();
-    return userModel;
+    return await localDataSource.getLastUser();
+  }
+
+  @override
+  Future<Either<Failure, void>> resetPassword(String email) async {
+    try {
+      await remoteDataSource.resetPassword(email);
+      return const Right(null);
+    } on Exception catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
   }
 }

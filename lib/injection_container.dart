@@ -1,10 +1,8 @@
-
 //import 'package:e_com_app/features/product/data/datasources/product_remote_data_source.dart';
 import 'package:get_it/get_it.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-
-
+import 'features/auth/domain/usecases/reset_password_usecase.dart';
 
 // Wishlist
 import 'features/wishlist/data/datasources/wishlist_local_data_source.dart';
@@ -72,10 +70,6 @@ import 'features/profile/presentation/bloc/profile_bloc.dart';
 
 final sl = GetIt.instance;
 
-
-
-
-
 Future<void> init() async {
   final dbPath = await getDatabasesPath();
   final database = await openDatabase(
@@ -124,47 +118,81 @@ Future<void> init() async {
   sl.registerLazySingleton<Database>(() => database);
 
   // Auth
-  sl.registerLazySingleton<AuthLocalDataSource>(() => AuthLocalDataSourceImpl(database: sl()));
-  sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceFirebase());
-  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(localDataSource: sl(), remoteDataSource: sl()));
+  sl.registerLazySingleton<AuthLocalDataSource>(
+    () => AuthLocalDataSourceImpl(database: sl()),
+  );
+  sl.registerLazySingleton<AuthRemoteDataSource>(
+    () => AuthRemoteDataSourceFirebase(),
+  );
+  sl.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImpl(localDataSource: sl(), remoteDataSource: sl()),
+  );
   sl.registerLazySingleton(() => LoginUseCase(sl()));
   sl.registerLazySingleton(() => SignUpUseCase(sl()));
   sl.registerLazySingleton(() => LogoutUseCase(sl()));
-  sl.registerFactory(() => AuthBloc(loginUseCase: sl(), signUpUseCase: sl(), logoutUseCase: sl()));
+  sl.registerFactory(
+    () => AuthBloc(
+      loginUseCase: sl(),
+      signUpUseCase: sl(),
+      logoutUseCase: sl(),
+      resetPasswordUseCase: sl(),
+    ),
+  );
+  sl.registerLazySingleton(() => ResetPasswordUseCase(sl()));
 
   // Product
   //sl.registerLazySingleton<ProductRemoteDataSource>(() => ProductRemoteDataSourceImpl());
-    // Product
-  sl.registerLazySingleton<ProductRemoteDataSource>(() => ProductRemoteDataSourceFirestore());
-  sl.registerLazySingleton<ProductRepository>(() => ProductRepositoryImpl(remoteDataSource: sl()));
+  // Product
+  sl.registerLazySingleton<ProductRemoteDataSource>(
+    () => ProductRemoteDataSourceFirestore(),
+  );
+  sl.registerLazySingleton<ProductRepository>(
+    () => ProductRepositoryImpl(remoteDataSource: sl()),
+  );
   sl.registerLazySingleton(() => GetProducts(sl()));
   sl.registerLazySingleton(() => GetProductById(sl()));
-  sl.registerFactory(() => ProductBloc(getProducts: sl(), getProductById: sl()));
+  sl.registerFactory(
+    () => ProductBloc(getProducts: sl(), getProductById: sl()),
+  );
 
   // Cart
-  sl.registerLazySingleton<CartLocalDataSource>(() => CartLocalDataSourceImpl(database: sl()));
-  sl.registerLazySingleton<CartRepository>(() => CartRepositoryImpl(localDataSource: sl()));
+  sl.registerLazySingleton<CartLocalDataSource>(
+    () => CartLocalDataSourceImpl(database: sl()),
+  );
+  sl.registerLazySingleton<CartRepository>(
+    () => CartRepositoryImpl(localDataSource: sl()),
+  );
   sl.registerLazySingleton(() => GetCart(sl()));
   sl.registerLazySingleton(() => AddToCart(sl()));
   sl.registerLazySingleton(() => RemoveFromCart(sl()));
   sl.registerLazySingleton(() => UpdateCartItemQuantity(sl()));
   sl.registerLazySingleton(() => ClearCart(sl()));
-  sl.registerFactory(() => CartBloc(
-        getCart: sl(),
-        addToCart: sl(),
-        removeFromCart: sl(),
-        updateQuantity: sl(),
-        clearCart: sl(),
-      ));
+  sl.registerFactory(
+    () => CartBloc(
+      getCart: sl(),
+      addToCart: sl(),
+      removeFromCart: sl(),
+      updateQuantity: sl(),
+      clearCart: sl(),
+    ),
+  );
 
   // Checkout
-  sl.registerLazySingleton<CheckoutRemoteDataSource>(() => CheckoutRemoteDataSourceImpl());
-  sl.registerLazySingleton<CheckoutRepository>(() => CheckoutRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton<CheckoutRemoteDataSource>(
+    () => CheckoutRemoteDataSourceImpl(),
+  );
+  sl.registerLazySingleton<CheckoutRepository>(
+    () => CheckoutRepositoryImpl(remoteDataSource: sl()),
+  );
   sl.registerLazySingleton(() => PlaceOrder(sl()));
 
   // Order
-  sl.registerLazySingleton<OrderLocalDataSource>(() => OrderLocalDataSourceImpl(database: sl()));
-  sl.registerLazySingleton<OrderRepository>(() => OrderRepositoryImpl(localDataSource: sl()));
+  sl.registerLazySingleton<OrderLocalDataSource>(
+    () => OrderLocalDataSourceImpl(database: sl()),
+  );
+  sl.registerLazySingleton<OrderRepository>(
+    () => OrderRepositoryImpl(localDataSource: sl()),
+  );
   sl.registerLazySingleton(() => GetOrders(sl()));
   sl.registerLazySingleton(() => SaveOrder(sl()));
 
@@ -172,25 +200,33 @@ Future<void> init() async {
   sl.registerFactory(() => OrderBloc(getOrders: sl()));
 
   // Profile
-  sl.registerLazySingleton<ProfileLocalDataSource>(() => ProfileLocalDataSourceImpl(database: sl()));
-  sl.registerLazySingleton<ProfileRepository>(() => ProfileRepositoryImpl(localDataSource: sl()));
+  sl.registerLazySingleton<ProfileLocalDataSource>(
+    () => ProfileLocalDataSourceImpl(database: sl()),
+  );
+  sl.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(localDataSource: sl()),
+  );
   sl.registerLazySingleton(() => GetProfile(sl()));
   sl.registerLazySingleton(() => UpdateProfile(sl()));
   sl.registerFactory(() => ProfileBloc(getProfile: sl(), updateProfile: sl()));
 
-    // Wishlist
+  // Wishlist
   sl.registerLazySingleton<WishlistLocalDataSource>(
-      () => WishlistLocalDataSourceImpl(database: sl()));
+    () => WishlistLocalDataSourceImpl(database: sl()),
+  );
   sl.registerLazySingleton<WishlistRepository>(
-      () => WishlistRepositoryImpl(localDataSource: sl()));
+    () => WishlistRepositoryImpl(localDataSource: sl()),
+  );
   sl.registerLazySingleton(() => GetWishlist(sl()));
   sl.registerLazySingleton(() => AddToWishlist(sl()));
   sl.registerLazySingleton(() => RemoveFromWishlist(sl()));
   sl.registerLazySingleton(() => CheckWishlist(sl()));
-  sl.registerFactory(() => WishlistBloc(
-        getWishlist: sl(),
-        addToWishlist: sl(),
-        removeFromWishlist: sl(),
-        checkWishlist: sl(),
-      ));
+  sl.registerFactory(
+    () => WishlistBloc(
+      getWishlist: sl(),
+      addToWishlist: sl(),
+      removeFromWishlist: sl(),
+      checkWishlist: sl(),
+    ),
+  );
 }
