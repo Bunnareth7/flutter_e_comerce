@@ -15,11 +15,14 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     on<PlaceOrderEvent>(_onPlaceOrder);
   }
 
-  void _onPlaceOrder(PlaceOrderEvent event, Emitter<CheckoutState> emit) async {
+  Future<void> _onPlaceOrder(
+      PlaceOrderEvent event, Emitter<CheckoutState> emit) async {
     emit(CheckoutLoading());
     final result = await placeOrder(PlaceOrderParams(event.items, event.total));
-    result.fold(
-      (failure) => emit(CheckoutError(failure.message)),
+
+    // ✅ Await the fold itself – both branches return Future<void>
+    await result.fold<Future<void>>(
+      (failure) async => emit(CheckoutError(failure.message)),
       (order) async {
         await saveOrder(SaveOrderParams(order));
         emit(CheckoutSuccess(order.id));

@@ -29,18 +29,22 @@ class CheckoutScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Order Summary',
-                        style: Theme.of(context).textTheme.titleLarge),
+                    Text(
+                      'Order Summary',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
                     const SizedBox(height: 16),
                     Expanded(
                       child: ListView(
                         children: [
-                          ...items.map((item) => OrderSummaryItem(
-                                name: item.productName,
-                                quantity: item.quantity,
-                                price: item.price,
-                                imageUrl: item.imageUrl,
-                              )),
+                          ...items.map(
+                            (item) => OrderSummaryItem(
+                              name: item.productName,
+                              quantity: item.quantity,
+                              price: item.price,
+                              imageUrl: item.imageUrl,
+                            ),
+                          ),
                           const Divider(),
                           Text(
                             'Total: \$${total.toStringAsFixed(2)}',
@@ -56,9 +60,15 @@ class CheckoutScreen extends StatelessWidget {
                       listener: (context, state) {
                         if (state is CheckoutSuccess) {
                           context.read<CartBloc>().add(ClearCart());
-                          Navigator.of(context).popUntil((route) => route.isFirst);
+                          Navigator.of(
+                            context,
+                          ).popUntil((route) => route.isFirst);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Order placed! ID: ${state.orderId}')),
+                            SnackBar(
+                              content: Text(
+                                'Order placed! ID: ${state.orderId}',
+                              ),
+                            ),
                           );
                         } else if (state is CheckoutError) {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -68,17 +78,19 @@ class CheckoutScreen extends StatelessWidget {
                       },
                       builder: (context, checkoutState) {
                         if (checkoutState is CheckoutLoading) {
-                          return const Center(child: CircularProgressIndicator());
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
                         }
                         return SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
+                            // ✅ Added missing onPressed
                             onPressed: () {
                               context.read<CheckoutBloc>().add(
-                                    PlaceOrderEvent(items, total),
-                                  );
+                                PlaceOrderEvent(items, total),
+                              );
                             },
-                            style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(16)),
                             child: const Text('Place Order'),
                           ),
                         );

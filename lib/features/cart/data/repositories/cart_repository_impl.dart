@@ -20,10 +20,21 @@ class CartRepositoryImpl implements CartRepository {
   }
 
   @override
-  Future<Either<Failure, void>> addToCart(String productId, String productName, double price, String imageUrl) async {
+  Future<Either<Failure, void>> addToCart(
+    String productId,
+    String productName,
+    double price,
+    String imageUrl,
+    int quantity,
+  ) async {
     try {
-      final item = CartItemModel(productId: productId, productName: productName, price: price, imageUrl: imageUrl);
-      await localDataSource.addToCart(item);
+      final item = CartItemModel(
+        productId: productId,
+        productName: productName,
+        price: price,
+        imageUrl: imageUrl,
+      );
+      await localDataSource.addToCart(item, quantity: quantity);
       return const Right(null);
     } catch (e) {
       return Left(CacheFailure(e.toString()));
@@ -41,7 +52,10 @@ class CartRepositoryImpl implements CartRepository {
   }
 
   @override
-  Future<Either<Failure, void>> updateQuantity(String productId, int quantity) async {
+  Future<Either<Failure, void>> updateQuantity(
+    String productId,
+    int quantity,
+  ) async {
     try {
       await localDataSource.updateQuantity(productId, quantity);
       return const Right(null);

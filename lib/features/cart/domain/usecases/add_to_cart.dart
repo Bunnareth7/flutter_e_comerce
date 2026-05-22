@@ -8,13 +8,29 @@ class AddToCartParams {
   final String productName;
   final double price;
   final String imageUrl;
-  AddToCartParams(this.productId, this.productName, this.price, this.imageUrl);
+  final int quantity;   // ← new
+
+  AddToCartParams(
+    this.productId,
+    this.productName,
+    this.price,
+    this.imageUrl,
+    this.quantity,
+  );
 }
 
 class AddToCart implements UseCase<void, AddToCartParams> {
   final CartRepository repository;
   AddToCart(this.repository);
+
   @override
-  Future<Either<Failure, void>> call(AddToCartParams params) =>
-      repository.addToCart(params.productId, params.productName, params.price, params.imageUrl);
+  Future<Either<Failure, void>> call(AddToCartParams params) {
+    return repository.addToCart(
+      params.productId,
+      params.productName,
+      params.price,
+      params.imageUrl,
+      params.quantity,
+    );
+  }
 }

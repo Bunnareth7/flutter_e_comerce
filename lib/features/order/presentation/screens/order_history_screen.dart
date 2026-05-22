@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/order_bloc.dart';
 import '../bloc/order_event.dart';
 import '../bloc/order_state.dart';
+import 'order_detail_screen.dart';   // ← new import
 
 class OrderHistoryScreen extends StatelessWidget {
   const OrderHistoryScreen({super.key});
@@ -24,24 +25,32 @@ class OrderHistoryScreen extends StatelessWidget {
             itemCount: state.orders.length,
             itemBuilder: (context, index) {
               final order = state.orders[index];
-              return Card(
-                margin: const EdgeInsets.all(8),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Order #${order.id.substring(0, 8)}',
-                          style: Theme.of(context).textTheme.titleMedium),
-                      Text('Date: ${order.date.toString().substring(0, 10)}'),
-                      Text('Status: ${order.status}'),
-                      const SizedBox(height: 8),
-                      ...order.items.map((item) => Text(
-                          '${item.productName} x ${item.quantity} - \$${item.price.toStringAsFixed(2)}')),
-                      const Divider(),
-                      Text('Total: \$${order.total.toStringAsFixed(2)}',
-                          style: Theme.of(context).textTheme.titleSmall),
-                    ],
+              return GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => OrderDetailScreen(order: order),
+                  ),
+                ),
+                child: Card(
+                  margin: const EdgeInsets.all(8),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Order #${order.id.substring(0, 8)}',
+                            style: Theme.of(context).textTheme.titleMedium),
+                        Text('Date: ${order.date.toString().substring(0, 10)}'),
+                        Text('Status: ${order.status}'),
+                        const SizedBox(height: 8),
+                        ...order.items.map((item) => Text(
+                            '${item.productName} x ${item.quantity} - \$${item.price.toStringAsFixed(2)}')),
+                        const Divider(),
+                        Text('Total: \$${order.total.toStringAsFixed(2)}',
+                            style: Theme.of(context).textTheme.titleSmall),
+                      ],
+                    ),
                   ),
                 ),
               );

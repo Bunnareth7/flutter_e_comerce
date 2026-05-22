@@ -7,8 +7,15 @@ class AddToCart extends CartEvent {
   final String productName;
   final double price;
   final String imageUrl;
+  final int quantity;
 
-  AddToCart(this.productId, this.productName, this.price, this.imageUrl);
+  AddToCart(
+    this.productId,
+    this.productName,
+    this.price,
+    this.imageUrl, {
+    this.quantity = 1,
+  });
 }
 
 class RemoveFromCart extends CartEvent {

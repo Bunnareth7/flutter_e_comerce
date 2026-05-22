@@ -3,7 +3,7 @@ import '../models/cart_item_model.dart';
 
 abstract class CartLocalDataSource {
   Future<List<CartItemModel>> getCartItems();
-  Future<void> addToCart(CartItemModel item);
+  Future<void> addToCart(CartItemModel item, {int quantity = 1});
   Future<void> removeFromCart(String productId);
   Future<void> updateQuantity(String productId, int quantity);
   Future<void> clearCart();
@@ -11,33 +11,67 @@ abstract class CartLocalDataSource {
 
 class CartLocalDataSourceImpl implements CartLocalDataSource {
   final Database database;
+
   CartLocalDataSourceImpl({required this.database});
 
   @override
   Future<List<CartItemModel>> getCartItems() async {
-    final maps = await database.query('cart_items');
-    return maps.map((e) => CartItemModel.fromJson(e)).toList();
+    final List<Map<String, dynamic>> maps = await database.query('cart_items');
+    return maps.map((map) => CartItemModel.fromJson(map)).toList();
   }
 
   @override
-  Future<void> addToCart(CartItemModel item) async {
-    final exist = await database.query('cart_items', where: 'productId = ?', whereArgs: [item.productId]);
-    if (exist.isNotEmpty) {
-      await database.rawUpdate('UPDATE cart_items SET quantity = quantity + 1 WHERE productId = ?', [item.productId]);
+  Future<void> addToCart(CartItemModel item, {int quantity = 1}) async {
+    final existing = await database.query(
+      'cart_items',
+      where: 'productId = ?',
+      whereArgs: [item.productId],
+    );
+
+    if (existing.isNotEmpty) {
+      final current = CartItemModel.fromJson(existing.first);
+      await database.update(
+        'cart_items',
+        {'quantity': current.quantity + quantity},
+        where: 'productId = ?',
+        whereArgs: [item.productId],
+      );
     } else {
-      await database.insert('cart_items', item.toJson());
+      // Insert with the given quantity
+      final newItem = CartItemModel(
+        productId: item.productId,
+        productName: item.productName,
+        price: item.price,
+        imageUrl: item.imageUrl,
+        quantity: quantity,
+      );
+      await database.insert('cart_items', newItem.toJson());
     }
   }
 
   @override
   Future<void> removeFromCart(String productId) async {
-    final exist = await database.query('cart_items', where: 'productId = ?', whereArgs: [productId]);
-    if (exist.isNotEmpty) {
-      final qty = exist.first['quantity'] as int;
-      if (qty > 1) {
-        await database.update('cart_items', {'quantity': qty - 1}, where: 'productId = ?', whereArgs: [productId]);
+    final existing = await database.query(
+      'cart_items',
+      where: 'productId = ?',
+      whereArgs: [productId],
+    );
+
+    if (existing.isNotEmpty) {
+      final current = CartItemModel.fromJson(existing.first);
+      if (current.quantity > 1) {
+        await database.update(
+          'cart_items',
+          {'quantity': current.quantity - 1},
+          where: 'productId = ?',
+          whereArgs: [productId],
+        );
       } else {
-        await database.delete('cart_items', where: 'productId = ?', whereArgs: [productId]);
+        await database.delete(
+          'cart_items',
+          where: 'productId = ?',
+          whereArgs: [productId],
+        );
       }
     }
   }
@@ -45,9 +79,18 @@ class CartLocalDataSourceImpl implements CartLocalDataSource {
   @override
   Future<void> updateQuantity(String productId, int quantity) async {
     if (quantity <= 0) {
-      await database.delete('cart_items', where: 'productId = ?', whereArgs: [productId]);
+      await database.delete(
+        'cart_items',
+        where: 'productId = ?',
+        whereArgs: [productId],
+      );
     } else {
-      await database.update('cart_items', {'quantity': quantity}, where: 'productId = ?', whereArgs: [productId]);
+      await database.update(
+        'cart_items',
+        {'quantity': quantity},
+        where: 'productId = ?',
+        whereArgs: [productId],
+      );
     }
   }
 

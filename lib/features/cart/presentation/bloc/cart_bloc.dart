@@ -39,7 +39,15 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   }
 
   void _onAddToCart(AddToCart event, Emitter<CartState> emit) async {
-    final result = await addToCart(add_usecase.AddToCartParams(event.productId, event.productName, event.price, event.imageUrl));
+  final result = await addToCart(
+    add_usecase.AddToCartParams(
+      event.productId,
+      event.productName,
+      event.price,
+      event.imageUrl,
+      event.quantity,   // ← 5th argument
+    ),
+    );
     result.fold(
       (failure) => emit(CartError(failure.message)),
       (_) => add(LoadCart()),
@@ -47,15 +55,25 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   }
 
   void _onRemoveFromCart(RemoveFromCart event, Emitter<CartState> emit) async {
-    final result = await removeFromCart(remove_usecase.RemoveFromCartParams(event.productId));
+    final result = await removeFromCart(
+      remove_usecase.RemoveFromCartParams(event.productId),
+    );
     result.fold(
       (failure) => emit(CartError(failure.message)),
       (_) => add(LoadCart()),
     );
   }
 
-  void _onUpdateCartItemQuantity(UpdateCartItemQuantity event, Emitter<CartState> emit) async {
-    final result = await updateQuantity(update_usecase.UpdateCartItemQuantityParams(event.productId, event.quantity));
+  void _onUpdateCartItemQuantity(
+    UpdateCartItemQuantity event,
+    Emitter<CartState> emit,
+  ) async {
+    final result = await updateQuantity(
+      update_usecase.UpdateCartItemQuantityParams(
+        event.productId,
+        event.quantity,
+      ),
+    );
     result.fold(
       (failure) => emit(CartError(failure.message)),
       (_) => add(LoadCart()),

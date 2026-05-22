@@ -299,18 +299,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            for (int i = 0; i < _quantity; i++) {
-                              context.read<CartBloc>().add(
-                                    AddToCart(
-                                      product.id,
-                                      product.name,
-                                      product.price,
-                                      product.imageUrls.isNotEmpty
-                                          ? product.imageUrls[0]
-                                          : '',
-                                    ),
-                                  );
-                            }
+                            // ✅ Single call with the correct quantity
+                            context.read<CartBloc>().add(
+                                  AddToCart(
+                                    product.id,
+                                    product.name,
+                                    product.price,
+                                    product.imageUrls.isNotEmpty
+                                        ? product.imageUrls[0]
+                                        : '',
+                                    quantity: _quantity,
+                                  ),
+                                );
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                   content: Text(
@@ -325,19 +325,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () {
-                            // Add to cart then navigate to checkout
-                            for (int i = 0; i < _quantity; i++) {
-                              context.read<CartBloc>().add(
-                                    AddToCart(
-                                      product.id,
-                                      product.name,
-                                      product.price,
-                                      product.imageUrls.isNotEmpty
-                                          ? product.imageUrls[0]
-                                          : '',
-                                    ),
-                                  );
-                            }
+                            // ✅ Add to cart then navigate to checkout (single call)
+                            context.read<CartBloc>().add(
+                                  AddToCart(
+                                    product.id,
+                                    product.name,
+                                    product.price,
+                                    product.imageUrls.isNotEmpty
+                                        ? product.imageUrls[0]
+                                        : '',
+                                    quantity: _quantity,
+                                  ),
+                                );
                             Navigator.pushNamed(context, '/checkout');
                           },
                           style: ElevatedButton.styleFrom(
