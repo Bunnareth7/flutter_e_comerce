@@ -1,4 +1,5 @@
 
+//import 'package:e_com_app/features/product/data/datasources/product_remote_data_source.dart';
 import 'package:get_it/get_it.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -26,8 +27,9 @@ import 'features/auth/domain/usecases/logout_usecase.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 
 // Product
-import 'features/product/data/datasources/product_remote_data_source.dart';
-
+//import 'features/product/data/datasources/product_remote_data_source.dart';
+// Product
+import 'features/product/data/datasources/product_remote_data_source_firestore.dart';
 import 'features/product/data/repositories/product_repository_impl.dart';
 import 'features/product/domain/repositories/product_repository.dart';
 import 'features/product/domain/usecases/get_products.dart';
@@ -131,7 +133,9 @@ Future<void> init() async {
   sl.registerFactory(() => AuthBloc(loginUseCase: sl(), signUpUseCase: sl(), logoutUseCase: sl()));
 
   // Product
-  sl.registerLazySingleton<ProductRemoteDataSource>(() => ProductRemoteDataSourceImpl());
+  //sl.registerLazySingleton<ProductRemoteDataSource>(() => ProductRemoteDataSourceImpl());
+    // Product
+  sl.registerLazySingleton<ProductRemoteDataSource>(() => ProductRemoteDataSourceFirestore());
   sl.registerLazySingleton<ProductRepository>(() => ProductRepositoryImpl(remoteDataSource: sl()));
   sl.registerLazySingleton(() => GetProducts(sl()));
   sl.registerLazySingleton(() => GetProductById(sl()));

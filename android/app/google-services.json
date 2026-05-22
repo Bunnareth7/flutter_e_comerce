@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "960717820880",
+    "project_id": "ecomapp-fc28b",
+    "storage_bucket": "ecomapp-fc28b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:960717820880:android:9e5af55463313148699fd5",
+        "android_client_info": {
+          "package_name": "com.example.e_com_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfv4ATswfwLaOR2VutEgZ9JGVxDsxeauw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
