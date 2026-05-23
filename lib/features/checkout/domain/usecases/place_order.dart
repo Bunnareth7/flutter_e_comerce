@@ -8,13 +8,21 @@ import '../repositories/checkout_repository.dart';
 class PlaceOrderParams {
   final List<CartItem> items;
   final double total;
-  PlaceOrderParams(this.items, this.total);
+  final String? shippingAddress;
+
+  PlaceOrderParams(this.items, this.total, {this.shippingAddress});
 }
 
 class PlaceOrder implements UseCase<Order, PlaceOrderParams> {
   final CheckoutRepository repository;
   PlaceOrder(this.repository);
+
   @override
-  Future<Either<Failure, Order>> call(PlaceOrderParams params) =>
-      repository.placeOrder(params.items, params.total);
+  Future<Either<Failure, Order>> call(PlaceOrderParams params) {
+    return repository.placeOrder(
+      params.items,
+      params.total,
+      shippingAddress: params.shippingAddress,
+    );
+  }
 }

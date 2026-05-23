@@ -12,7 +12,11 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
   CheckoutRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<Failure, Order>> placeOrder(List<CartItem> items, double total) async {
+  Future<Either<Failure, Order>> placeOrder(
+    List<CartItem> items,
+    double total, {
+    String? shippingAddress,
+  }) async {
     try {
       final model = OrderModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -25,6 +29,7 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
         )).toList(),
         total: total,
         date: DateTime.now(),
+        shippingAddress: shippingAddress,   // ← pass address
       );
       final placed = await remoteDataSource.placeOrder(model);
       return Right(placed);

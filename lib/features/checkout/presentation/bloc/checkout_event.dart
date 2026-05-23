@@ -5,5 +5,7 @@ abstract class CheckoutEvent {}
 class PlaceOrderEvent extends CheckoutEvent {
   final List<CartItem> items;
   final double total;
-  PlaceOrderEvent(this.items, this.total);
+  final String? shippingAddress;
+
+  PlaceOrderEvent(this.items, this.total, {this.shippingAddress});
 }

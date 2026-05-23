@@ -8,6 +8,8 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
   final PlaceOrder placeOrder;
   final SaveOrder saveOrder;
 
+  String? selectedAddressId;   // ← store the selected address ID
+
   CheckoutBloc({
     required this.placeOrder,
     required this.saveOrder,
@@ -18,10 +20,14 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
   Future<void> _onPlaceOrder(
       PlaceOrderEvent event, Emitter<CheckoutState> emit) async {
     emit(CheckoutLoading());
-    final result = await placeOrder(PlaceOrderParams(event.items, event.total));
-
-    // ✅ Await the fold itself – both branches return Future<void>
-    await result.fold<Future<void>>(
+    final result = await placeOrder(
+      PlaceOrderParams(
+        event.items,
+        event.total,
+        shippingAddress: event.shippingAddress,
+      ),
+    );
+    await result.fold(
       (failure) async => emit(CheckoutError(failure.message)),
       (order) async {
         await saveOrder(SaveOrderParams(order));

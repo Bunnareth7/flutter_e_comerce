@@ -4,17 +4,30 @@ import '../../../../injection_container.dart';
 import '../../../cart/presentation/bloc/cart_bloc.dart';
 import '../../../cart/presentation/bloc/cart_event.dart';
 import '../../../cart/presentation/bloc/cart_state.dart';
+import '../../../address/presentation/bloc/address_bloc.dart';
+import '../../../address/presentation/bloc/address_event.dart';
+import '../../../address/presentation/bloc/address_state.dart';
 import '../bloc/checkout_bloc.dart';
 import '../bloc/checkout_event.dart';
 import '../bloc/checkout_state.dart';
 import '../widgets/order_summary.dart';
 import '../widgets/payment_method_selector.dart';
 
-class CheckoutScreen extends StatelessWidget {
+class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
 
   @override
+  State<CheckoutScreen> createState() => _CheckoutScreenState();
+}
+
+class _CheckoutScreenState extends State<CheckoutScreen> {
+  String? _selectedAddressId;
+
+  @override
   Widget build(BuildContext context) {
+    // Make sure addresses are loaded
+    context.read<AddressBloc>().add(LoadAddresses());
+
     return Scaffold(
       appBar: AppBar(title: const Text('Checkout')),
       body: BlocBuilder<CartBloc, CartState>(
@@ -22,6 +35,7 @@ class CheckoutScreen extends StatelessWidget {
           if (cartState is CartLoaded) {
             final items = cartState.items;
             final total = cartState.totalPrice;
+
             return BlocProvider(
               create: (_) => sl<CheckoutBloc>(),
               child: Padding(
@@ -51,6 +65,43 @@ class CheckoutScreen extends StatelessWidget {
                             style: Theme.of(context).textTheme.headlineSmall,
                           ),
                           const SizedBox(height: 16),
+
+                          // ----- Address Selection -----
+                          BlocBuilder<AddressBloc, AddressState>(
+                            builder: (context, addressState) {
+                              if (addressState is AddressesLoaded) {
+                                final addresses = addressState.addresses;
+                                if (addresses.isEmpty) {
+                                  return const ListTile(
+                                    title: Text('No addresses saved'),
+                                    subtitle: Text('Please add one in Profile'),
+                                  );
+                                }
+                                return DropdownButtonFormField<String>(
+                                  value: _selectedAddressId,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Shipping Address',
+                                  ),
+                                  items: addresses.map((addr) {
+                                    return DropdownMenuItem<String>(
+                                      value: addr.id,
+                                      child: Text(
+                                        '${addr.fullName}, ${addr.street}, ${addr.city}',
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    );
+                                  }).toList(),
+                                  onChanged: (selectedId) {
+                                    setState(() {
+                                      _selectedAddressId = selectedId;
+                                    });
+                                  },
+                                );
+                              }
+                              return const LinearProgressIndicator();
+                            },
+                          ),
+                          const SizedBox(height: 16),
                           const PaymentMethodSelector(),
                         ],
                       ),
@@ -59,10 +110,11 @@ class CheckoutScreen extends StatelessWidget {
                     BlocConsumer<CheckoutBloc, CheckoutState>(
                       listener: (context, state) {
                         if (state is CheckoutSuccess) {
-                          context.read<CartBloc>().add(ClearCart());
+                          // Close the payment dialog if it's still open
                           Navigator.of(
                             context,
                           ).popUntil((route) => route.isFirst);
+                          context.read<CartBloc>().add(ClearCart());
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
@@ -71,6 +123,8 @@ class CheckoutScreen extends StatelessWidget {
                             ),
                           );
                         } else if (state is CheckoutError) {
+                          // Close the payment dialog and show error
+                          Navigator.of(context).pop();
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text(state.message)),
                           );
@@ -85,12 +139,59 @@ class CheckoutScreen extends StatelessWidget {
                         return SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            // ✅ Added missing onPressed
                             onPressed: () {
+                              if (_selectedAddressId == null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Please select a shipping address',
+                                    ),
+                                  ),
+                                );
+                                return;
+                              }
+
+                              // Build the address string
+                              final addressBloc = context.read<AddressBloc>();
+                              String? addressString;
+                              if (addressBloc.state is AddressesLoaded) {
+                                final addresses =
+                                    (addressBloc.state as AddressesLoaded)
+                                        .addresses;
+                                final selected = addresses.firstWhere(
+                                  (a) => a.id == _selectedAddressId,
+                                );
+                                addressString =
+                                    '${selected.fullName}, ${selected.street}, ${selected.city}, ${selected.state} ${selected.zip}, ${selected.phone}';
+                              }
+
+                              // Show payment processing dialog
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (_) => const AlertDialog(
+                                  content: Row(
+                                    children: [
+                                      CircularProgressIndicator(),
+                                      SizedBox(width: 20),
+                                      Text('Processing payment...'),
+                                    ],
+                                  ),
+                                ),
+                              );
+
+                              // Place the order
                               context.read<CheckoutBloc>().add(
-                                PlaceOrderEvent(items, total),
+                                PlaceOrderEvent(
+                                  items,
+                                  total,
+                                  shippingAddress: addressString,
+                                ),
                               );
                             },
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.all(16),
+                            ),
                             child: const Text('Place Order'),
                           ),
                         );

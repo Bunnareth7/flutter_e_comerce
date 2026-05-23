@@ -1,4 +1,3 @@
-// TODO Implement this library.
 import 'dart:convert';
 import '../../domain/entities/order.dart';
 import '../../../cart/data/models/cart_item_model.dart';
@@ -10,7 +9,15 @@ class OrderModel extends Order {
     required double total,
     required DateTime date,
     String status = 'confirmed',
-  }) : super(id: id, items: items, total: total, date: date, status: status);
+    String? shippingAddress,          // ← new
+  }) : super(
+          id: id,
+          items: items,
+          total: total,
+          date: date,
+          status: status,
+          shippingAddress: shippingAddress,  // ← pass to entity
+        );
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
     return OrderModel(
@@ -23,6 +30,7 @@ class OrderModel extends Order {
       total: (json['total'] as num).toDouble(),
       date: DateTime.parse(json['date']),
       status: json['status'] ?? 'confirmed',
+      shippingAddress: json['shippingAddress'],   // ← read
     );
   }
 
@@ -33,6 +41,7 @@ class OrderModel extends Order {
       'total': total,
       'date': date.toIso8601String(),
       'status': status,
+      'shippingAddress': shippingAddress,         // ← write
     };
   }
 }

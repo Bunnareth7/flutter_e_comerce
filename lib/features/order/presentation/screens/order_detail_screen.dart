@@ -18,9 +18,11 @@ class OrderDetailScreen extends StatelessWidget {
             // Status badge
             Row(
               children: [
-                const Text('Status: ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const Text('Status: ',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: order.status == 'confirmed'
                         ? Colors.green.shade50
@@ -83,6 +85,19 @@ class OrderDetailScreen extends StatelessWidget {
                         color: Theme.of(context).colorScheme.primary)),
               ],
             ),
+
+            // Shipping Address (if present)
+            if (order.shippingAddress != null &&
+                order.shippingAddress!.isNotEmpty) ...[
+              const SizedBox(height: 24),
+              const Divider(),
+              const SizedBox(height: 12),
+              const Text('Shipping Address',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const SizedBox(height: 8),
+              Text(order.shippingAddress!,
+                  style: TextStyle(color: Colors.grey.shade700)),
+            ],
           ],
         ),
       ),

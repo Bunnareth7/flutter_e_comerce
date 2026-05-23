@@ -1,6 +1,5 @@
 import 'package:dartz/dartz.dart' hide Order;
 import '../../../cart/domain/entities/cart_item.dart';
-export '../../../checkout/domain/entities/order.dart';
 
 class Order {
   final String id;
@@ -8,6 +7,7 @@ class Order {
   final double total;
   final DateTime date;
   final String status;
+  final String? shippingAddress;   // ← new field
 
   Order({
     required this.id,
@@ -15,5 +15,6 @@ class Order {
     required this.total,
     required this.date,
     this.status = 'confirmed',
+    this.shippingAddress,
   });
 }
