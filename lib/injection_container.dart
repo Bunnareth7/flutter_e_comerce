@@ -25,8 +25,6 @@ import 'features/auth/domain/usecases/logout_usecase.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 
 // Product
-//import 'features/product/data/datasources/product_remote_data_source.dart';
-// Product
 import 'features/product/data/datasources/product_remote_data_source_firestore.dart';
 import 'features/product/data/repositories/product_repository_impl.dart';
 import 'features/product/domain/repositories/product_repository.dart';
@@ -68,13 +66,24 @@ import 'features/profile/domain/usecases/get_profile.dart';
 import 'features/profile/domain/usecases/update_profile.dart';
 import 'features/profile/presentation/bloc/profile_bloc.dart';
 
+// Address
+import 'features/address/data/datasources/address_local_data_source.dart';
+import 'features/address/data/repositories/address_repository_impl.dart';
+import 'features/address/domain/repositories/address_repository.dart';
+import 'features/address/domain/usecases/get_addresses.dart';
+import 'features/address/domain/usecases/add_address.dart';
+import 'features/address/domain/usecases/update_address.dart';
+import 'features/address/domain/usecases/delete_address.dart';
+import 'features/address/domain/usecases/set_default_address.dart';
+import 'features/address/presentation/bloc/address_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
   final dbPath = await getDatabasesPath();
   final database = await openDatabase(
     join(dbPath, 'eshop.db'),
-    version: 1,
+    version: 2,   // ← bumped to 2
     onCreate: (db, version) async {
       await db.execute('''
         CREATE TABLE users (
@@ -106,13 +115,41 @@ Future<void> init() async {
         )
       ''');
       await db.execute('''
-  CREATE TABLE wishlist_items (
-    productId TEXT PRIMARY KEY,
-    productName TEXT,
-    price REAL,
-    imageUrl TEXT
-  )
-''');
+        CREATE TABLE wishlist_items (
+          productId TEXT PRIMARY KEY,
+          productName TEXT,
+          price REAL,
+          imageUrl TEXT
+        )
+      ''');
+      await db.execute('''
+        CREATE TABLE addresses (
+          id TEXT PRIMARY KEY,
+          fullName TEXT,
+          phone TEXT,
+          street TEXT,
+          city TEXT,
+          state TEXT,
+          zip TEXT,
+          isDefault INTEGER DEFAULT 0
+        )
+      ''');
+    },
+    onUpgrade: (db, oldVersion, newVersion) async {
+      if (oldVersion < 2) {
+        await db.execute('''
+          CREATE TABLE addresses (
+            id TEXT PRIMARY KEY,
+            fullName TEXT,
+            phone TEXT,
+            street TEXT,
+            city TEXT,
+            state TEXT,
+            zip TEXT,
+            isDefault INTEGER DEFAULT 0
+          )
+        ''');
+      }
     },
   );
   sl.registerLazySingleton<Database>(() => database);
@@ -140,8 +177,6 @@ Future<void> init() async {
   );
   sl.registerLazySingleton(() => ResetPasswordUseCase(sl()));
 
-  // Product
-  //sl.registerLazySingleton<ProductRemoteDataSource>(() => ProductRemoteDataSourceImpl());
   // Product
   sl.registerLazySingleton<ProductRemoteDataSource>(
     () => ProductRemoteDataSourceFirestore(),
@@ -229,4 +264,22 @@ Future<void> init() async {
       checkWishlist: sl(),
     ),
   );
+
+  // Address
+  sl.registerLazySingleton<AddressLocalDataSource>(
+      () => AddressLocalDataSourceImpl(database: sl()));
+  sl.registerLazySingleton<AddressRepository>(
+      () => AddressRepositoryImpl(localDataSource: sl()));
+  sl.registerLazySingleton(() => GetAddresses(sl()));
+  sl.registerLazySingleton(() => AddAddress(sl()));
+  sl.registerLazySingleton(() => UpdateAddress(sl()));
+  sl.registerLazySingleton(() => DeleteAddress(sl()));
+  sl.registerLazySingleton(() => SetDefaultAddress(sl()));
+  sl.registerFactory(() => AddressBloc(
+        getAddresses: sl(),
+        addAddress: sl(),
+        updateAddress: sl(),
+        deleteAddress: sl(),
+        setDefaultAddress: sl(),
+      ));
 }

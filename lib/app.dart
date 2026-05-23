@@ -1,3 +1,4 @@
+import 'package:e_com_app/features/address/presentation/bloc/address_bloc.dart';
 import 'package:e_com_app/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:e_com_app/features/cart/presentation/bloc/cart_event.dart';
 import 'package:e_com_app/features/cart/presentation/bloc/cart_state.dart';
@@ -32,7 +33,9 @@ class ECommerceApp extends StatelessWidget {
         BlocProvider<CartBloc>(create: (_) => sl<CartBloc>()..add(LoadCart())),
         BlocProvider<ProductBloc>(create: (_) => sl<ProductBloc>()),
         BlocProvider<OrderBloc>(create: (_) => sl<OrderBloc>()),
+        BlocProvider<AddressBloc>(create: (_) => sl<AddressBloc>()),
         BlocProvider<WishlistBloc>(
+        
             create: (_) => sl<WishlistBloc>()..add(LoadWishlist())),
       ],
       child: MaterialApp(

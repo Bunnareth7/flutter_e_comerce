@@ -1,3 +1,4 @@
+import 'package:e_com_app/features/address/presentation/screens/address_list_screen.dart';
 import 'package:e_com_app/features/profile/domain/entities/user_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,7 +9,6 @@ import '../bloc/profile_bloc.dart';
 import '../bloc/profile_event.dart';
 import '../bloc/profile_state.dart';
 import '../widgets/profile_avatar.dart';
-import '../bloc/profile_event.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -22,14 +22,14 @@ class ProfileScreen extends StatelessWidget {
         body: BlocConsumer<ProfileBloc, ProfileState>(
           listener: (context, state) {
             if (state is ProfileUpdateSuccess) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Profile updated')));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Profile updated')),
+              );
               context.read<ProfileBloc>().add(LoadProfile());
             } else if (state is ProfileError) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(state.message)));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.message)),
+              );
             }
           },
           builder: (context, state) {
@@ -62,7 +62,24 @@ class ProfileScreen extends StatelessWidget {
           if (profile.phone != null) _buildInfoRow('Phone', profile.phone),
           if (profile.address != null)
             _buildInfoRow('Address', profile.address),
-          const SizedBox(height: 30),
+          const SizedBox(height: 20),
+          const Divider(),
+          // Address management tile
+          ListTile(
+            leading: const Icon(Icons.location_on),
+            title: const Text('Addresses'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const AddressListScreen(),
+                ),
+              );
+            },
+          ),
+          const Divider(),
+          const SizedBox(height: 20),
           ElevatedButton.icon(
             onPressed: () => _showEditDialog(context, profile),
             icon: const Icon(Icons.edit),
@@ -72,9 +89,10 @@ class ProfileScreen extends StatelessWidget {
           OutlinedButton.icon(
             onPressed: () {
               context.read<AuthBloc>().add(LogoutRequested());
-              Navigator.of(
-                context,
-              ).pushNamedAndRemoveUntil('/login', (route) => false);
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                '/login',
+                (route) => false,
+              );
             },
             icon: const Icon(Icons.logout),
             label: const Text('Logout'),
