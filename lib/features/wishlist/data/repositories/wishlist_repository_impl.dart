@@ -57,4 +57,13 @@ class WishlistRepositoryImpl implements WishlistRepository {
       return Left(CacheFailure(e.toString()));
     }
   }
+  @override
+Future<Either<Failure, void>> clearWishlist() async {
+  try {
+    await localDataSource.clearWishlist();
+    return const Right(null);
+  } catch (e) {
+    return Left(CacheFailure(e.toString()));
+  }
+}
 }

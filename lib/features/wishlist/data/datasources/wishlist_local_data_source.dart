@@ -6,6 +6,7 @@ abstract class WishlistLocalDataSource {
   Future<void> addToWishlist(WishlistItemModel item);
   Future<void> removeFromWishlist(String productId);
   Future<bool> isInWishlist(String productId);
+  Future<void> clearWishlist();   // ← new
 }
 
 class WishlistLocalDataSourceImpl implements WishlistLocalDataSource {
@@ -35,5 +36,10 @@ class WishlistLocalDataSourceImpl implements WishlistLocalDataSource {
     final result = await database.query('wishlist_items',
         where: 'productId = ?', whereArgs: [productId]);
     return result.isNotEmpty;
+  }
+
+  @override
+  Future<void> clearWishlist() async {
+    await database.delete('wishlist_items');
   }
 }

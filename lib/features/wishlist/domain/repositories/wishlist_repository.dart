@@ -8,4 +8,5 @@ abstract class WishlistRepository {
   Future<Either<Failure, void>> addToWishlist(String productId, String productName, double price, String imageUrl);
   Future<Either<Failure, void>> removeFromWishlist(String productId);
   Future<Either<Failure, bool>> isInWishlist(String productId);
+  Future<Either<Failure, void>> clearWishlist();
 }

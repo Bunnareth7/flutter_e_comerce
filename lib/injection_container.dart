@@ -13,6 +13,7 @@ import 'features/wishlist/domain/usecases/get_wishlist.dart';
 import 'features/wishlist/domain/usecases/add_to_wishlist.dart';
 import 'features/wishlist/domain/usecases/remove_from_wishlist.dart';
 import 'features/wishlist/domain/usecases/check_wishlist.dart';
+import 'features/wishlist/domain/usecases/clear_wishlist.dart';   // <-- new
 import 'features/wishlist/presentation/bloc/wishlist_bloc.dart';
 
 // Auth
@@ -93,7 +94,7 @@ import 'features/search/domain/repositories/search_history_repository.dart';
 import 'features/search/domain/usecases/get_search_history.dart';
 import 'features/search/domain/usecases/add_search_history.dart';
 import 'features/search/domain/usecases/clear_search_history.dart';
-
+//import 'features/search/presentation/bloc/search_history_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -229,6 +230,8 @@ Future<void> init() async {
       signUpUseCase: sl(),
       logoutUseCase: sl(),
       resetPasswordUseCase: sl(),
+      clearCart: sl(),
+      clearWishlist: sl(),    // <-- new parameter
     ),
   );
   sl.registerLazySingleton(() => ResetPasswordUseCase(sl()));
@@ -312,6 +315,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => AddToWishlist(sl()));
   sl.registerLazySingleton(() => RemoveFromWishlist(sl()));
   sl.registerLazySingleton(() => CheckWishlist(sl()));
+  sl.registerLazySingleton(() => ClearWishlist(sl()));   // <-- new
   sl.registerFactory(
     () => WishlistBloc(
       getWishlist: sl(),

@@ -1,9 +1,11 @@
 import 'package:e_com_app/core/usecases/usecase.dart';
+import 'package:e_com_app/features/cart/domain/usecases/clear_cart.dart';
+import 'package:e_com_app/features/wishlist/domain/usecases/clear_wishlist.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/signup_usecase.dart' as signup;
 import '../../domain/usecases/logout_usecase.dart';
-import '../../domain/usecases/reset_password_usecase.dart';   // new
+import '../../domain/usecases/reset_password_usecase.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -11,19 +13,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUseCase loginUseCase;
   final signup.SignUpUseCase signUpUseCase;
   final LogoutUseCase logoutUseCase;
-  final ResetPasswordUseCase resetPasswordUseCase;            // new
+  final ResetPasswordUseCase resetPasswordUseCase;
+  final ClearCart clearCart;           // ← new
+  final ClearWishlist clearWishlist;   // ← new
 
   AuthBloc({
     required this.loginUseCase,
     required this.signUpUseCase,
     required this.logoutUseCase,
-    required this.resetPasswordUseCase,                       // new
+    required this.resetPasswordUseCase,
+    required this.clearCart,
+    required this.clearWishlist,
   }) : super(AuthInitial()) {
     on<LoginRequested>(_onLoginRequested);
     on<SignUpRequested>(_onSignUpRequested);
     on<LogoutRequested>(_onLogoutRequested);
     on<CheckAuthStatus>(_onCheckAuthStatus);
-    on<ResetPasswordRequested>(_onResetPasswordRequested);    // new
+    on<ResetPasswordRequested>(_onResetPasswordRequested);
   }
 
   void _onLoginRequested(LoginRequested event, Emitter<AuthState> emit) async {
@@ -47,6 +53,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   void _onLogoutRequested(LogoutRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     await logoutUseCase(NoParams());
+    // Clear local cart and wishlist so the next user sees a fresh state
+    await clearCart(NoParams());
+    await clearWishlist(NoParams());
     emit(Unauthenticated());
   }
 
