@@ -1,4 +1,5 @@
 //import 'package:e_com_app/features/product/data/datasources/product_remote_data_source.dart';
+import 'package:e_com_app/features/search/presentation/bloc/search_history_bloc.dart.dart';
 import 'package:get_it/get_it.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -85,13 +86,22 @@ import 'features/review/domain/usecases/get_reviews.dart';
 import 'features/review/domain/usecases/add_review.dart';
 import 'features/review/presentation/bloc/review_bloc.dart';
 
+// Search History
+import 'features/search/data/datasources/search_history_local_data_source.dart';
+import 'features/search/data/repositories/search_history_repository_impl.dart';
+import 'features/search/domain/repositories/search_history_repository.dart';
+import 'features/search/domain/usecases/get_search_history.dart';
+import 'features/search/domain/usecases/add_search_history.dart';
+import 'features/search/domain/usecases/clear_search_history.dart';
+
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
   final dbPath = await getDatabasesPath();
   final database = await openDatabase(
     join(dbPath, 'eshop.db'),
-    version: 3,   // ← bumped to 3
+    version: 4,   // bumped to 4
     onCreate: (db, version) async {
       await db.execute('''
         CREATE TABLE users (
@@ -152,6 +162,13 @@ Future<void> init() async {
           date TEXT NOT NULL
         )
       ''');
+      await db.execute('''
+        CREATE TABLE search_history (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          query TEXT NOT NULL,
+          timestamp TEXT NOT NULL
+        )
+      ''');
     },
     onUpgrade: (db, oldVersion, newVersion) async {
       if (oldVersion < 2) {
@@ -177,6 +194,15 @@ Future<void> init() async {
             rating REAL NOT NULL,
             comment TEXT,
             date TEXT NOT NULL
+          )
+        ''');
+      }
+      if (oldVersion < 4) {
+        await db.execute('''
+          CREATE TABLE search_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            query TEXT NOT NULL,
+            timestamp TEXT NOT NULL
           )
         ''');
       }
@@ -322,4 +348,18 @@ Future<void> init() async {
   sl.registerLazySingleton(() => AddReview(sl()));
   sl.registerFactory(
       () => ReviewBloc(getReviews: sl(), addReview: sl()));
+
+  // Search History
+  sl.registerLazySingleton<SearchHistoryLocalDataSource>(
+      () => SearchHistoryLocalDataSourceImpl(database: sl()));
+  sl.registerLazySingleton<SearchHistoryRepository>(
+      () => SearchHistoryRepositoryImpl(localDataSource: sl()));
+  sl.registerLazySingleton(() => GetSearchHistory(sl()));
+  sl.registerLazySingleton(() => AddSearchHistory(sl()));
+  sl.registerLazySingleton(() => ClearSearchHistory(sl()));
+  sl.registerFactory(() => SearchHistoryBloc(
+        getSearchHistory: sl(),
+        addSearchHistory: sl(),
+        clearSearchHistory: sl(),
+      ));
 }
