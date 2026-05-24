@@ -77,13 +77,21 @@ import 'features/address/domain/usecases/delete_address.dart';
 import 'features/address/domain/usecases/set_default_address.dart';
 import 'features/address/presentation/bloc/address_bloc.dart';
 
+// Reviews
+import 'features/review/data/datasources/review_local_data_source.dart';
+import 'features/review/data/repositories/review_repository_impl.dart';
+import 'features/review/domain/repositories/review_repository.dart';
+import 'features/review/domain/usecases/get_reviews.dart';
+import 'features/review/domain/usecases/add_review.dart';
+import 'features/review/presentation/bloc/review_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
   final dbPath = await getDatabasesPath();
   final database = await openDatabase(
     join(dbPath, 'eshop.db'),
-    version: 2,   // ← bumped to 2
+    version: 3,   // ← bumped to 3
     onCreate: (db, version) async {
       await db.execute('''
         CREATE TABLE users (
@@ -134,6 +142,16 @@ Future<void> init() async {
           isDefault INTEGER DEFAULT 0
         )
       ''');
+      await db.execute('''
+        CREATE TABLE reviews (
+          id TEXT PRIMARY KEY,
+          productId TEXT NOT NULL,
+          userName TEXT NOT NULL,
+          rating REAL NOT NULL,
+          comment TEXT,
+          date TEXT NOT NULL
+        )
+      ''');
     },
     onUpgrade: (db, oldVersion, newVersion) async {
       if (oldVersion < 2) {
@@ -147,6 +165,18 @@ Future<void> init() async {
             state TEXT,
             zip TEXT,
             isDefault INTEGER DEFAULT 0
+          )
+        ''');
+      }
+      if (oldVersion < 3) {
+        await db.execute('''
+          CREATE TABLE reviews (
+            id TEXT PRIMARY KEY,
+            productId TEXT NOT NULL,
+            userName TEXT NOT NULL,
+            rating REAL NOT NULL,
+            comment TEXT,
+            date TEXT NOT NULL
           )
         ''');
       }
@@ -282,4 +312,14 @@ Future<void> init() async {
         deleteAddress: sl(),
         setDefaultAddress: sl(),
       ));
+
+  // Reviews
+  sl.registerLazySingleton<ReviewLocalDataSource>(
+      () => ReviewLocalDataSourceImpl(database: sl()));
+  sl.registerLazySingleton<ReviewRepository>(
+      () => ReviewRepositoryImpl(localDataSource: sl()));
+  sl.registerLazySingleton(() => GetReviews(sl()));
+  sl.registerLazySingleton(() => AddReview(sl()));
+  sl.registerFactory(
+      () => ReviewBloc(getReviews: sl(), addReview: sl()));
 }

@@ -12,6 +12,14 @@ class ProductRemoteDataSourceFirestore implements ProductRemoteDataSource {
   @override
   Future<List<ProductModel>> getProducts() async {
     final snapshot = await _firestore.collection('products').get();
+
+    // 🔥 TEMPORARY DEBUG PRINT – shows what Firestore returns for the LED Desk Lamp
+    for (var doc in snapshot.docs) {
+      if (doc.id == '14') {
+        print('🔥 LED Desk Lamp raw imageUrls: ${doc.data()['imageUrls']}');
+      }
+    }
+
     return snapshot.docs
         .map((doc) => ProductModel.fromJson({'id': doc.id, ...doc.data()!}))
         .toList();

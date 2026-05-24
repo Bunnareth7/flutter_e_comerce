@@ -6,8 +6,21 @@ class OrderDetailScreen extends StatelessWidget {
 
   const OrderDetailScreen({super.key, required this.order});
 
+  // Simulate a status based on the order's age
+  int _simulatedStatusIndex(DateTime orderDate) {
+    final age = DateTime.now().difference(orderDate);
+    if (age.inMinutes < 1) return 0;          // just placed → Confirmed
+    if (age.inMinutes < 5) return 1;          // Processing
+    if (age.inHours < 1) return 2;            // Shipped
+    return 3;                                 // Delivered
+  }
+
   @override
   Widget build(BuildContext context) {
+    final statusIndex = _simulatedStatusIndex(order.date);
+    const steps = ['Confirmed', 'Processing', 'Shipped', 'Delivered'];
+    const icons = [Icons.check_circle, Icons.inventory_2, Icons.local_shipping, Icons.home];
+
     return Scaffold(
       appBar: AppBar(title: Text('Order #${order.id.substring(0, 8)}')),
       body: SingleChildScrollView(
@@ -18,11 +31,9 @@ class OrderDetailScreen extends StatelessWidget {
             // Status badge
             Row(
               children: [
-                const Text('Status: ',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const Text('Status: ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: order.status == 'confirmed'
                         ? Colors.green.shade50
@@ -49,9 +60,80 @@ class OrderDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
+            // Tracking timeline
+            const Text('Tracking', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            const SizedBox(height: 16),
+            ...List.generate(steps.length, (index) {
+              final isCompleted = index <= statusIndex;
+              final isCurrent = index == statusIndex;
+              return IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Dot and line column
+                    SizedBox(
+                      width: 40,
+                      child: Column(
+                        children: [
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            width: isCurrent ? 28 : 24,
+                            height: isCurrent ? 28 : 24,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isCompleted
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Colors.grey.shade300,
+                              border: isCurrent
+                                  ? Border.all(
+                                      color: Theme.of(context).colorScheme.primary,
+                                      width: 3)
+                                  : null,
+                            ),
+                            child: Icon(
+                              icons[index],
+                              size: 14,
+                              color: isCompleted ? Colors.white : Colors.grey,
+                            ),
+                          ),
+                          if (index < steps.length - 1)
+                            Expanded(
+                              child: Container(
+                                width: 2,
+                                margin: const EdgeInsets.symmetric(vertical: 4),
+                                color: index < statusIndex
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Colors.grey.shade300,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // Step label
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 32),
+                      child: Text(
+                        steps[index],
+                        style: TextStyle(
+                          fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
+                          color: isCompleted
+                              ? Colors.black
+                              : Colors.grey.shade500,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 12),
+
             // Items list
-            const Text('Items',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            const Text('Items', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             const SizedBox(height: 12),
             ...order.items.map((item) => Card(
                   margin: const EdgeInsets.only(bottom: 8),
@@ -67,7 +149,7 @@ class OrderDetailScreen extends StatelessWidget {
                   ),
                 )),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             const Divider(),
             const SizedBox(height: 12),
 
@@ -76,8 +158,7 @@ class OrderDetailScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text('Total',
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
                 Text('\$${order.total.toStringAsFixed(2)}',
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -86,7 +167,7 @@ class OrderDetailScreen extends StatelessWidget {
               ],
             ),
 
-            // Shipping Address (if present)
+            // Shipping Address
             if (order.shippingAddress != null &&
                 order.shippingAddress!.isNotEmpty) ...[
               const SizedBox(height: 24),

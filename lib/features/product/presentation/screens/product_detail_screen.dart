@@ -1,5 +1,9 @@
 import 'package:e_com_app/features/product/presentation/bloc/product_bloc.dart';
 import 'package:e_com_app/features/product/presentation/bloc/product_state.dart';
+import 'package:e_com_app/features/review/presentation/bloc/review_bloc.dart';
+import 'package:e_com_app/features/review/presentation/bloc/review_event.dart';
+import 'package:e_com_app/features/review/presentation/bloc/review_state.dart';
+import 'package:e_com_app/features/review/domain/entities/review.dart';
 import 'package:e_com_app/features/wishlist/presentation/bloc/wishlist_bloc.dart';
 import 'package:e_com_app/features/wishlist/presentation/bloc/wishlist_event.dart';
 import 'package:e_com_app/features/wishlist/presentation/bloc/wishlist_state.dart';
@@ -30,6 +34,77 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     super.dispose();
   }
 
+  void _showAddReviewDialog(BuildContext context, String productId) {
+    final nameCtrl = TextEditingController();
+    double rating = 5;
+    final commentCtrl = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Write a Review'),
+        content: Form(
+          key: formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: nameCtrl,
+                  decoration: const InputDecoration(labelText: 'Your Name'),
+                  validator: (v) => v!.isEmpty ? 'Required' : null,
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<int>(
+                  value: 5,
+                  items: List.generate(
+                    5,
+                    (i) => DropdownMenuItem(
+                      value: i + 1,
+                      child: Text('${i + 1} Stars'),
+                    ),
+                  ),
+                  onChanged: (val) => rating = val!.toDouble(),
+                  decoration: const InputDecoration(labelText: 'Rating'),
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: commentCtrl,
+                  decoration: const InputDecoration(labelText: 'Comment'),
+                  maxLines: 3,
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (formKey.currentState!.validate()) {
+                final review = Review(
+                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                  productId: productId,
+                  userName: nameCtrl.text.trim(),
+                  rating: rating,
+                  comment: commentCtrl.text.trim(),
+                  date: DateTime.now(),
+                );
+                context.read<ReviewBloc>().add(AddReview(review));
+                Navigator.pop(ctx);
+              }
+            },
+            child: const Text('Submit'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final product = widget.product;
@@ -51,7 +126,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          // App Bar with share and wishlist (BLoC controlled)
+          // App Bar with wishlist heart (BLoC controlled)
           SliverAppBar(
             expandedHeight: 0,
             floating: true,
@@ -299,7 +374,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            // ✅ Single call with the correct quantity
                             context.read<CartBloc>().add(
                                   AddToCart(
                                     product.id,
@@ -325,7 +399,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () {
-                            // ✅ Add to cart then navigate to checkout (single call)
                             context.read<CartBloc>().add(
                                   AddToCart(
                                     product.id,
@@ -360,6 +433,97 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   Text(product.description,
                       style: TextStyle(
                           color: Colors.grey.shade700, height: 1.5)),
+                  const SizedBox(height: 20),
+
+                  // ------------------- REVIEWS SECTION -------------------
+                  BlocBuilder<ReviewBloc, ReviewState>(
+                    builder: (context, state) {
+                      // Trigger loading reviews for this product
+                      if (state is ReviewInitial) {
+                        context.read<ReviewBloc>().add(LoadReviews(product.id));
+                        return const SizedBox();
+                      }
+                      if (state is ReviewLoading) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (state is ReviewsLoaded) {
+                        final reviews = state.reviews;
+                        final avgRating = reviews.isEmpty
+                            ? product.rating
+                            : reviews.map((r) => r.rating).reduce((a, b) => a + b) /
+                                reviews.length;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 10),
+                            const Text('Reviews',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 18)),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Text(
+                                    'Average Rating: ${avgRating.toStringAsFixed(1)}',
+                                    style: const TextStyle(fontSize: 14)),
+                                const SizedBox(width: 8),
+                                ...List.generate(
+                                    5,
+                                    (i) => Icon(
+                                          i < avgRating.floor()
+                                              ? Icons.star
+                                              : Icons.star_border,
+                                          color: Colors.amber,
+                                          size: 20,
+                                        )),
+                              ],
+                            ),
+                            if (reviews.isNotEmpty)
+                              ...reviews.map((review) => Card(
+                                    margin:
+                                        const EdgeInsets.symmetric(vertical: 4),
+                                    child: ListTile(
+                                      title: Text(review.userName),
+                                      subtitle: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: List.generate(
+                                                5,
+                                                (i) => Icon(
+                                                      i < review.rating.floor()
+                                                          ? Icons.star
+                                                          : Icons.star_border,
+                                                      color: Colors.amber,
+                                                      size: 16,
+                                                    )),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(review.comment),
+                                        ],
+                                      ),
+                                    ),
+                                  )),
+                            const SizedBox(height: 8),
+                            ElevatedButton.icon(
+                              onPressed: () =>
+                                  _showAddReviewDialog(context, product.id),
+                              icon: const Icon(Icons.edit),
+                              label: const Text('Write a Review'),
+                            ),
+                          ],
+                        );
+                      }
+                      if (state is ReviewAdded) {
+                        // Reload reviews after adding
+                        context.read<ReviewBloc>().add(LoadReviews(product.id));
+                        return const SizedBox();
+                      }
+                      return const SizedBox();
+                    },
+                  ),
+                  // --------------- END OF REVIEWS SECTION ---------------
+
                   const SizedBox(height: 20),
 
                   // Related Products

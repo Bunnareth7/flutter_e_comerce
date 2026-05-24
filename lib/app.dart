@@ -7,12 +7,14 @@ import 'package:e_com_app/features/checkout/presentation/screens/onboarding_scre
 //import 'package:e_com_app/features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'package:e_com_app/features/order/presentation/bloc/order_bloc.dart';
 import 'package:e_com_app/features/product/presentation/bloc/product_bloc.dart';
+import 'package:e_com_app/features/review/presentation/bloc/review_bloc.dart';
+//import 'package:e_com_app/features/splash/presentation/screens/splash_screen.dart';
+import 'package:e_com_app/features/splash/presentation/splash_screen.dart';
 import 'package:e_com_app/features/wishlist/presentation/bloc/wishlist_bloc.dart';
 import 'package:e_com_app/features/wishlist/presentation/bloc/wishlist_event.dart';
 import 'package:e_com_app/features/wishlist/presentation/screens/wishlist_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'injection_container.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/bloc/auth_event.dart';
@@ -26,11 +28,6 @@ import 'features/profile/presentation/screens/profile_screen.dart';
 class ECommerceApp extends StatelessWidget {
   const ECommerceApp({super.key});
 
-  static Future<bool> shouldShowOnboarding() async {
-    final prefs = await SharedPreferences.getInstance();
-    return !(prefs.getBool('onboarding_complete') ?? false);
-  }
-
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -42,6 +39,7 @@ class ECommerceApp extends StatelessWidget {
         BlocProvider<ProductBloc>(create: (_) => sl<ProductBloc>()),
         BlocProvider<OrderBloc>(create: (_) => sl<OrderBloc>()),
         BlocProvider<AddressBloc>(create: (_) => sl<AddressBloc>()),
+        BlocProvider<ReviewBloc>(create: (_) => sl<ReviewBloc>()),
         BlocProvider<WishlistBloc>(
             create: (_) => sl<WishlistBloc>()..add(LoadWishlist())),
       ],
@@ -80,33 +78,21 @@ class ECommerceApp extends StatelessWidget {
             ),
           ),
         ),
-        home: FutureBuilder<bool>(
-          future: ECommerceApp.shouldShowOnboarding(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
-            }
-            final showOnboarding = snapshot.data ?? false;
-            if (showOnboarding) {
-              return const OnboardingScreen();
-            }
-            // If onboarding is completed, check auth state
-            return BlocBuilder<AuthBloc, AuthState>(
-              builder: (context, state) {
-                if (state is Authenticated) {
-                  return const MainScreen();
-                }
-                return const LoginScreen();
-              },
-            );
-          },
-        ),
+        // Show splash screen first, then route to appropriate screen
+        home: const SplashScreen(),
         routes: {
+          '/home': (_) => BlocBuilder<AuthBloc, AuthState>(
+                builder: (context, state) {
+                  if (state is Authenticated) {
+                    return const MainScreen();
+                  }
+                  return const LoginScreen();
+                },
+              ),
           '/main': (_) => const MainScreen(),
           '/login': (_) => const LoginScreen(),
           '/checkout': (_) => const CheckoutScreen(),
+          '/onboarding': (_) => const OnboardingScreen(),
         },
       ),
     );
@@ -125,7 +111,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = const [
     ProductListScreen(),
-    WishlistScreen(),   // new wishlist tab
+    WishlistScreen(),
     CartScreen(),
     OrderHistoryScreen(),
     ProfileScreen(),
