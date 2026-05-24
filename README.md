@@ -89,3 +89,40 @@ State management is handled with **flutter_bloc**. Dependency injection is manag
 ---
 
 ## 📂 Project Structure
+lib/
+├── core/ # Shared utilities, errors, usecase base class
+├── features/
+│ ├── address/ # Address management
+│ ├── auth/ # Authentication (Firebase)
+│ ├── cart/ # Shopping cart
+│ ├── checkout/ # Checkout & order placement
+│ ├── onboarding/ # Onboarding flow
+│ ├── order/ # Order history & detail
+│ ├── product/ # Product listing & detail
+│ ├── profile/ # User profile
+│ ├── review/ # Product reviews
+│ ├── search/ # Search history
+│ ├── splash/ # Splash screen
+│ └── wishlist/ # Wishlist
+├── injection_container.dart # GetIt DI setup
+├── app.dart # App entry with routes and providers
+└── main.dart # Firebase init and app startup
+
+
+ 
+---
+
+## 🚀 Setup Instructions
+
+### Prerequisites
+- Flutter SDK (≥ 3.10)
+- Android Studio / VS Code
+- Firebase project
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/Bunnareth7/flutter_e_comerce.git
+cd flutter_e_comerce
+flutter pub get
+# (Optional) Put your google-services.json inside android/app/
+flutter run
