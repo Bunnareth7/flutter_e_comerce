@@ -8,8 +8,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
   final PlaceOrder placeOrder;
   final SaveOrder saveOrder;
 
-  String? selectedAddressId;   // ← store the selected address ID
-
   CheckoutBloc({
     required this.placeOrder,
     required this.saveOrder,
@@ -17,14 +15,14 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     on<PlaceOrderEvent>(_onPlaceOrder);
   }
 
-  Future<void> _onPlaceOrder(
-      PlaceOrderEvent event, Emitter<CheckoutState> emit) async {
+  Future<void> _onPlaceOrder(PlaceOrderEvent event, Emitter<CheckoutState> emit) async {
     emit(CheckoutLoading());
     final result = await placeOrder(
       PlaceOrderParams(
         event.items,
         event.total,
         shippingAddress: event.shippingAddress,
+        userEmail: event.userEmail,
       ),
     );
     await result.fold(

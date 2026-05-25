@@ -3,7 +3,7 @@ import '../../../../core/error/failures.dart';
 import '../../domain/entities/order.dart';
 import '../../domain/repositories/checkout_repository.dart';
 import '../../../cart/domain/entities/cart_item.dart';
-import '../datasources/checkout_remote_data_source.dart';
+import '../datasources/checkout_remote_data_source_firestore.dart';
 import '../models/order_model.dart';
 import '../../../cart/data/models/cart_item_model.dart';
 
@@ -16,6 +16,7 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
     List<CartItem> items,
     double total, {
     String? shippingAddress,
+    String? userEmail,
   }) async {
     try {
       final model = OrderModel(
@@ -29,7 +30,8 @@ class CheckoutRepositoryImpl implements CheckoutRepository {
         )).toList(),
         total: total,
         date: DateTime.now(),
-        shippingAddress: shippingAddress,   // ← pass address
+        shippingAddress: shippingAddress,
+        userEmail: userEmail,
       );
       final placed = await remoteDataSource.placeOrder(model);
       return Right(placed);

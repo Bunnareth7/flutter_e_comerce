@@ -1,7 +1,7 @@
 import 'package:e_com_app/features/search/presentation/bloc/search_history_event.dart.dart';
 import 'package:e_com_app/features/search/presentation/bloc/search_history_state.dart.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/usecases/usecase.dart';          // needed for NoParams
+import '../../../../core/usecases/usecase.dart';
 import '../../domain/usecases/get_search_history.dart';
 import '../../domain/usecases/add_search_history.dart';
 import '../../domain/usecases/clear_search_history.dart' as clear_uc;
@@ -17,7 +17,6 @@ class SearchHistoryBloc extends Bloc<SearchHistoryEvent, SearchHistoryState> {
     required this.addSearchHistory,
     required this.clearSearchHistory,
   }) : super(SearchHistoryInitial()) {
-    // Event handlers – event classes do NOT use the prefix
     on<LoadSearchHistory>(_onLoad);
     on<AddSearchQuery>(_onAdd);
     on<ClearSearchHistory>(_onClear);
@@ -38,7 +37,7 @@ class SearchHistoryBloc extends Bloc<SearchHistoryEvent, SearchHistoryState> {
   }
 
   void _onClear(ClearSearchHistory event, Emitter<SearchHistoryState> emit) async {
-    await clearSearchHistory(NoParams());   // NoParams from core/usecases
+    await clearSearchHistory(NoParams());
     add(LoadSearchHistory());
   }
 }

@@ -1,15 +1,18 @@
 import 'package:e_com_app/features/address/presentation/bloc/address_bloc.dart';
+import 'package:e_com_app/features/admin/presentation/bloc/admin_product_bloc.dart';
+import 'package:e_com_app/features/admin/presentation/screens/admin_dashboard_screen.dart';
 import 'package:e_com_app/features/cart/presentation/bloc/cart_bloc.dart';
 import 'package:e_com_app/features/cart/presentation/bloc/cart_event.dart';
 import 'package:e_com_app/features/cart/presentation/bloc/cart_state.dart';
 import 'package:e_com_app/features/checkout/presentation/screens/checkout_screen.dart';
 import 'package:e_com_app/features/checkout/presentation/screens/onboarding_screen.dart';
-//import 'package:e_com_app/features/onboarding/presentation/screens/onboarding_screen.dart';
+
 import 'package:e_com_app/features/order/presentation/bloc/order_bloc.dart';
 import 'package:e_com_app/features/product/presentation/bloc/product_bloc.dart';
 import 'package:e_com_app/features/review/presentation/bloc/review_bloc.dart';
+
 import 'package:e_com_app/features/search/presentation/bloc/search_history_bloc.dart.dart';
-//import 'package:e_com_app/features/splash/presentation/screens/splash_screen.dart';
+
 import 'package:e_com_app/features/splash/presentation/splash_screen.dart';
 import 'package:e_com_app/features/wishlist/presentation/bloc/wishlist_bloc.dart';
 import 'package:e_com_app/features/wishlist/presentation/bloc/wishlist_event.dart';
@@ -41,6 +44,7 @@ class ECommerceApp extends StatelessWidget {
         BlocProvider<OrderBloc>(create: (_) => sl<OrderBloc>()),
         BlocProvider<AddressBloc>(create: (_) => sl<AddressBloc>()),
         BlocProvider<ReviewBloc>(create: (_) => sl<ReviewBloc>()),
+        BlocProvider<AdminProductBloc>(create: (_) => sl<AdminProductBloc>()),
         BlocProvider<SearchHistoryBloc>(create: (_) => sl<SearchHistoryBloc>()),
         BlocProvider<WishlistBloc>(
             create: (_) => sl<WishlistBloc>()..add(LoadWishlist())),
@@ -95,6 +99,7 @@ class ECommerceApp extends StatelessWidget {
           '/login': (_) => const LoginScreen(),
           '/checkout': (_) => const CheckoutScreen(),
           '/onboarding': (_) => const OnboardingScreen(),
+          '/admin': (_) => const AdminDashboardScreen(),   // one single route for the admin dashboard
         },
       ),
     );

@@ -9,8 +9,9 @@ class PlaceOrderParams {
   final List<CartItem> items;
   final double total;
   final String? shippingAddress;
+  final String? userEmail;
 
-  PlaceOrderParams(this.items, this.total, {this.shippingAddress});
+  PlaceOrderParams(this.items, this.total, {this.shippingAddress, this.userEmail});
 }
 
 class PlaceOrder implements UseCase<Order, PlaceOrderParams> {
@@ -23,6 +24,7 @@ class PlaceOrder implements UseCase<Order, PlaceOrderParams> {
       params.items,
       params.total,
       shippingAddress: params.shippingAddress,
+      userEmail: params.userEmail,
     );
   }
 }

@@ -9,14 +9,16 @@ class OrderModel extends Order {
     required double total,
     required DateTime date,
     String status = 'confirmed',
-    String? shippingAddress,          // ← new
+    String? shippingAddress,
+    String? userEmail,
   }) : super(
           id: id,
           items: items,
           total: total,
           date: date,
           status: status,
-          shippingAddress: shippingAddress,  // ← pass to entity
+          shippingAddress: shippingAddress,
+          userEmail: userEmail,
         );
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
@@ -30,7 +32,8 @@ class OrderModel extends Order {
       total: (json['total'] as num).toDouble(),
       date: DateTime.parse(json['date']),
       status: json['status'] ?? 'confirmed',
-      shippingAddress: json['shippingAddress'],   // ← read
+      shippingAddress: json['shippingAddress'],
+      userEmail: json['userEmail'],
     );
   }
 
@@ -41,7 +44,8 @@ class OrderModel extends Order {
       'total': total,
       'date': date.toIso8601String(),
       'status': status,
-      'shippingAddress': shippingAddress,         // ← write
+      'shippingAddress': shippingAddress,
+      'userEmail': userEmail,
     };
   }
 }

@@ -8,5 +8,6 @@ abstract class CheckoutRepository {
     List<CartItem> items,
     double total, {
     String? shippingAddress,
+    String? userEmail,
   });
 }

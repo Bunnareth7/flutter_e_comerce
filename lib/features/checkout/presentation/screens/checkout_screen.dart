@@ -7,6 +7,8 @@ import '../../../cart/presentation/bloc/cart_state.dart';
 import '../../../address/presentation/bloc/address_bloc.dart';
 import '../../../address/presentation/bloc/address_event.dart';
 import '../../../address/presentation/bloc/address_state.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';      // ← new import
+import '../../../auth/presentation/bloc/auth_state.dart';    // ← new import
 import '../bloc/checkout_bloc.dart';
 import '../bloc/checkout_event.dart';
 import '../bloc/checkout_state.dart';
@@ -165,6 +167,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                     '${selected.fullName}, ${selected.street}, ${selected.city}, ${selected.state} ${selected.zip}, ${selected.phone}';
                               }
 
+                              // ----- Get current user email from AuthBloc -----
+                              final authState = context.read<AuthBloc>().state;
+                              String? userEmail = authState is Authenticated
+                                  ? authState.user.email
+                                  : null;
+
                               // Show payment processing dialog
                               showDialog(
                                 context: context,
@@ -180,12 +188,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                 ),
                               );
 
-                              // Place the order
+                              // Place the order (now with userEmail)
                               context.read<CheckoutBloc>().add(
                                 PlaceOrderEvent(
                                   items,
                                   total,
                                   shippingAddress: addressString,
+                                  userEmail: userEmail,   // ← pass the email
                                 ),
                               );
                             },

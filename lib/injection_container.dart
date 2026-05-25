@@ -13,7 +13,7 @@ import 'features/wishlist/domain/usecases/get_wishlist.dart';
 import 'features/wishlist/domain/usecases/add_to_wishlist.dart';
 import 'features/wishlist/domain/usecases/remove_from_wishlist.dart';
 import 'features/wishlist/domain/usecases/check_wishlist.dart';
-import 'features/wishlist/domain/usecases/clear_wishlist.dart';   // <-- new
+import 'features/wishlist/domain/usecases/clear_wishlist.dart';
 import 'features/wishlist/presentation/bloc/wishlist_bloc.dart';
 
 // Auth
@@ -45,8 +45,8 @@ import 'features/cart/domain/usecases/update_cart_item_quantity.dart';
 import 'features/cart/domain/usecases/clear_cart.dart';
 import 'features/cart/presentation/bloc/cart_bloc.dart';
 
-// Checkout
-import 'features/checkout/data/datasources/checkout_remote_data_source.dart';
+// Checkout – using Firestore data source
+import 'features/checkout/data/datasources/checkout_remote_data_source_firestore.dart';
 import 'features/checkout/data/repositories/checkout_repository_impl.dart';
 import 'features/checkout/domain/repositories/checkout_repository.dart';
 import 'features/checkout/domain/usecases/place_order.dart';
@@ -96,13 +96,22 @@ import 'features/search/domain/usecases/add_search_history.dart';
 import 'features/search/domain/usecases/clear_search_history.dart';
 //import 'features/search/presentation/bloc/search_history_bloc.dart';
 
+// Admin Product Management
+import 'features/admin/data/repositories/admin_product_repository_impl.dart';
+import 'features/admin/domain/repositories/admin_product_repository.dart';
+import 'features/admin/domain/usecases/admin_get_products.dart';
+import 'features/admin/domain/usecases/admin_add_product.dart';
+import 'features/admin/domain/usecases/admin_update_product.dart';
+import 'features/admin/domain/usecases/admin_delete_product.dart';
+import 'features/admin/presentation/bloc/admin_product_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
   final dbPath = await getDatabasesPath();
   final database = await openDatabase(
     join(dbPath, 'eshop.db'),
-    version: 4,   // bumped to 4
+    version: 5,   // bumped to 5
     onCreate: (db, version) async {
       await db.execute('''
         CREATE TABLE users (
@@ -130,7 +139,8 @@ Future<void> init() async {
           items TEXT,
           total REAL,
           date TEXT,
-          status TEXT
+          status TEXT,
+          shippingAddress TEXT
         )
       ''');
       await db.execute('''
@@ -207,6 +217,9 @@ Future<void> init() async {
           )
         ''');
       }
+      if (oldVersion < 5) {
+        await db.execute('''ALTER TABLE orders ADD COLUMN shippingAddress TEXT''');
+      }
     },
   );
   sl.registerLazySingleton<Database>(() => database);
@@ -231,7 +244,7 @@ Future<void> init() async {
       logoutUseCase: sl(),
       resetPasswordUseCase: sl(),
       clearCart: sl(),
-      clearWishlist: sl(),    // <-- new parameter
+      clearWishlist: sl(),
     ),
   );
   sl.registerLazySingleton(() => ResetPasswordUseCase(sl()));
@@ -271,9 +284,9 @@ Future<void> init() async {
     ),
   );
 
-  // Checkout
+  // Checkout – using Firestore data source
   sl.registerLazySingleton<CheckoutRemoteDataSource>(
-    () => CheckoutRemoteDataSourceImpl(),
+    () => CheckoutRemoteDataSourceFirestore(),
   );
   sl.registerLazySingleton<CheckoutRepository>(
     () => CheckoutRepositoryImpl(remoteDataSource: sl()),
@@ -315,7 +328,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => AddToWishlist(sl()));
   sl.registerLazySingleton(() => RemoveFromWishlist(sl()));
   sl.registerLazySingleton(() => CheckWishlist(sl()));
-  sl.registerLazySingleton(() => ClearWishlist(sl()));   // <-- new
+  sl.registerLazySingleton(() => ClearWishlist(sl()));
   sl.registerFactory(
     () => WishlistBloc(
       getWishlist: sl(),
@@ -365,5 +378,19 @@ Future<void> init() async {
         getSearchHistory: sl(),
         addSearchHistory: sl(),
         clearSearchHistory: sl(),
+      ));
+
+  // Admin Product Management
+  sl.registerLazySingleton<AdminProductRepository>(
+      () => AdminProductRepositoryImpl());
+  sl.registerLazySingleton(() => AdminGetProducts(sl()));
+  sl.registerLazySingleton(() => AdminAddProduct(sl()));
+  sl.registerLazySingleton(() => AdminUpdateProduct(sl()));
+  sl.registerLazySingleton(() => AdminDeleteProduct(sl()));
+  sl.registerFactory(() => AdminProductBloc(
+        getProducts: sl(),
+        addProduct: sl(),
+        updateProduct: sl(),
+        deleteProduct: sl(),
       ));
 }

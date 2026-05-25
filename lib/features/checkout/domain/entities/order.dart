@@ -7,7 +7,8 @@ class Order {
   final double total;
   final DateTime date;
   final String status;
-  final String? shippingAddress;   // ← new field
+  final String? shippingAddress;
+  final String? userEmail;   // NEW
 
   Order({
     required this.id,
@@ -16,5 +17,6 @@ class Order {
     required this.date,
     this.status = 'confirmed',
     this.shippingAddress,
+    this.userEmail,
   });
 }
