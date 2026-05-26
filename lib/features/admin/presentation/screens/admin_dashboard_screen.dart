@@ -55,6 +55,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
             expandedHeight: 120,
             floating: false,
             pinned: true,
+            // Title appears when the app bar is collapsed – no overlap with tabs
+            title: const Text(
+              'Admin Dashboard',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: BoxDecoration(
@@ -64,27 +69,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
                     end: Alignment.bottomRight,
                   ),
                 ),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.admin_panel_settings,
-                        size: 40,
-                        color: Colors.white,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Admin Dashboard',
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineSmall
-                            ?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                    ],
+                child: const Center(
+                  child: Icon(
+                    Icons.admin_panel_settings,
+                    size: 40,
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -230,7 +219,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
             }
             return RefreshIndicator(
               onRefresh: () async {
-                // Reload orders by re-adding the event (since AdminOrderBloc is local, we can just create a new one)
+                // Reload orders – simply re-add the event
+                context.read<AdminOrderBloc>().add(LoadAdminOrders());
               },
               child: ListView.builder(
                 padding: const EdgeInsets.all(12),

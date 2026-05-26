@@ -94,7 +94,7 @@ import 'features/search/domain/repositories/search_history_repository.dart';
 import 'features/search/domain/usecases/get_search_history.dart';
 import 'features/search/domain/usecases/add_search_history.dart';
 import 'features/search/domain/usecases/clear_search_history.dart';
-//import 'features/search/presentation/bloc/search_history_bloc.dart';
+
 
 // Admin Product Management
 import 'features/admin/data/repositories/admin_product_repository_impl.dart';
@@ -111,7 +111,7 @@ Future<void> init() async {
   final dbPath = await getDatabasesPath();
   final database = await openDatabase(
     join(dbPath, 'eshop.db'),
-    version: 5,   // bumped to 5
+    version: 6,   // bumped to 6
     onCreate: (db, version) async {
       await db.execute('''
         CREATE TABLE users (
@@ -140,7 +140,8 @@ Future<void> init() async {
           total REAL,
           date TEXT,
           status TEXT,
-          shippingAddress TEXT
+          shippingAddress TEXT,
+          userEmail TEXT
         )
       ''');
       await db.execute('''
@@ -219,6 +220,9 @@ Future<void> init() async {
       }
       if (oldVersion < 5) {
         await db.execute('''ALTER TABLE orders ADD COLUMN shippingAddress TEXT''');
+      }
+      if (oldVersion < 6) {
+        await db.execute('''ALTER TABLE orders ADD COLUMN userEmail TEXT''');
       }
     },
   );

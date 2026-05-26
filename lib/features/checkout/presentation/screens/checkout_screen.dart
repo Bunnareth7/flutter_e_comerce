@@ -7,8 +7,10 @@ import '../../../cart/presentation/bloc/cart_state.dart';
 import '../../../address/presentation/bloc/address_bloc.dart';
 import '../../../address/presentation/bloc/address_event.dart';
 import '../../../address/presentation/bloc/address_state.dart';
-import '../../../auth/presentation/bloc/auth_bloc.dart';      // ← new import
-import '../../../auth/presentation/bloc/auth_state.dart';    // ← new import
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
+import '../../../order/presentation/bloc/order_bloc.dart';
+import '../../../order/presentation/bloc/order_event.dart';
 import '../bloc/checkout_bloc.dart';
 import '../bloc/checkout_event.dart';
 import '../bloc/checkout_state.dart';
@@ -27,7 +29,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Make sure addresses are loaded
+    // Load addresses when the screen opens
     context.read<AddressBloc>().add(LoadAddresses());
 
     return Scaffold(
@@ -112,10 +114,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     BlocConsumer<CheckoutBloc, CheckoutState>(
                       listener: (context, state) {
                         if (state is CheckoutSuccess) {
+                          // Reload orders so the new one appears
+                          context.read<OrderBloc>().add(LoadOrders());
                           // Close the payment dialog if it's still open
-                          Navigator.of(
-                            context,
-                          ).popUntil((route) => route.isFirst);
+                          Navigator.of(context).popUntil((route) => route.isFirst);
                           context.read<CartBloc>().add(ClearCart());
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
@@ -167,7 +169,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                     '${selected.fullName}, ${selected.street}, ${selected.city}, ${selected.state} ${selected.zip}, ${selected.phone}';
                               }
 
-                              // ----- Get current user email from AuthBloc -----
+                              // Get current user email from AuthBloc
                               final authState = context.read<AuthBloc>().state;
                               String? userEmail = authState is Authenticated
                                   ? authState.user.email
@@ -194,7 +196,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                   items,
                                   total,
                                   shippingAddress: addressString,
-                                  userEmail: userEmail,   // ← pass the email
+                                  userEmail: userEmail,
                                 ),
                               );
                             },

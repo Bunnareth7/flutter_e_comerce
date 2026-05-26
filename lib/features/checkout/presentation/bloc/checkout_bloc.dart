@@ -15,7 +15,8 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     on<PlaceOrderEvent>(_onPlaceOrder);
   }
 
-  Future<void> _onPlaceOrder(PlaceOrderEvent event, Emitter<CheckoutState> emit) async {
+  Future<void> _onPlaceOrder(
+      PlaceOrderEvent event, Emitter<CheckoutState> emit) async {
     emit(CheckoutLoading());
     final result = await placeOrder(
       PlaceOrderParams(
@@ -25,11 +26,16 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
         userEmail: event.userEmail,
       ),
     );
+
     await result.fold(
       (failure) async => emit(CheckoutError(failure.message)),
       (order) async {
-        await saveOrder(SaveOrderParams(order));
-        emit(CheckoutSuccess(order.id));
+        // Save the order locally so it appears in Order History
+        final saveResult = await saveOrder(SaveOrderParams(order));
+        saveResult.fold(
+          (failure) => emit(CheckoutError(failure.message)),
+          (_) => emit(CheckoutSuccess(order.id)),
+        );
       },
     );
   }
